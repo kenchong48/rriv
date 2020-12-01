@@ -12,7 +12,7 @@
 #define WT_SET_RTC 1004
 #define WT_DEPLOY 1005
 #define WT_DEBUG_VAlUES 1006 // will print out data that's logged
-#define WT_CLEAR_MODES 1007
+#define WT_CLEAR_MODES 1007 // clear config and debug without resetting
 
 class WaterBear_Control
 {

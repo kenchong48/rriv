@@ -480,7 +480,7 @@ void setupEZOI2C() {
 
     Serial2.println("Setting up board");
 
-    oem_ec = new EC_OEM(&Wire2, NONE_INT, i2c_id);
+    oem_ec = new EC_OEM(&Wire2, NONE_INT, i2c_id); //move to setup instead of calling each time upon awakening
     bool awoke = oem_ec->wakeUp();
     Serial.println("Device addr EC: "+String(oem_ec->getStoredAddr()) );
     Serial.println("Device type EC: "+String(oem_ec->getDeviceType()) );
