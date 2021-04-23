@@ -2,7 +2,7 @@
 #define WATERBEAR_CONFIGURATION
 
 #define SERIAL_BAUD 115200
-#define USER_WAKE_TIMEOUT           60 * 5 // Timeout after wakeup from user interaction, seconds
+#define USER_WAKE_TIMEOUT           60 * 2 // Timeout after wakeup from user interaction, seconds
 
 // DEBUG behaviors
 #define DEBUG_MEASUREMENTS false // enable log messages related to measurement & bursts
@@ -19,8 +19,5 @@
 #define BLUEFRUIT_SPI_CS    PB8  // Pullup
 #define BLUEFRUIT_SPI_IRQ   PB9
 #define BLUEFRUIT_SPI_RST   PC4
-
-
-
 
 #endif

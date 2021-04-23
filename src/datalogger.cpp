@@ -6,7 +6,7 @@ char version[5] = "v2.0";
 short interval = 1;     // minutes between loggings when not in short sleep
 short burstLength = 25; // how many readings in a burst
 
-short fieldCount = 22; // number of fields to be logged to SDcard file
+short fieldCount = 54; // number of fields to be logged to SDcard file (22+32(+4 thermistors))
 
 // Pin Mappings for Nucleo Board
 // BLE USART
@@ -135,10 +135,11 @@ void allocateMeasurementValuesMemory()
   values[3] = (char *)malloc(sizeof(char) * 24); // human readable timestamp
   sprintf(values[3], "%23d", 0);
   for (int i = 4; i <= 10; i++)
-  { // 6 sensors + conductivity + 6 for temp calibration data
+  { // 6 sensors + conductivity
     values[i] = (char *)malloc(sizeof(char) * 5);
     sprintf(values[i], "%4d", 0);
   }
+  //thermistor 1 (PB1)
   values[11] = (char *)malloc(sizeof(char) * 11); // epoch timestamp for temp calibration
   sprintf(values[11], "%10d", 0);
   for (int i = 12; i <= 18; i++)
@@ -146,12 +147,46 @@ void allocateMeasurementValuesMemory()
     values[i] = (char *)malloc(sizeof(char) * 7);
     sprintf(values[i], "%6d", 0);
   }
+
   values[19] = (char *)malloc(sizeof(char) * 3); // burst count
   sprintf(values[19], "%2d", 0);
   values[20] = (char *)malloc(sizeof(char) * 11); // user serial value input
   sprintf(values[20], "%10d", 0);
   values[21] = (char *)malloc(sizeof(char) * 31); // user serial notes input
   sprintf(values[21], "%30d", 0);
+
+  //thermistor 2 (PC0)
+  values[22] = (char *)malloc(sizeof(char) * 11); // epoch timestamp for temp calibration
+  sprintf(values[22], "%10d", 0);
+  for (int i = 23; i <= 29; i++)
+  { // temp calibration data C1, V1, C2, V2, M, B, temp reading
+  values[i] = (char *)malloc(sizeof(char) * 7);
+    sprintf(values[i], "%6d", 0);
+  }
+  //thermistor 3 (PC1)
+  values[30] = (char *)malloc(sizeof(char) * 11); // epoch timestamp for temp calibration
+  sprintf(values[30], "%10d", 0);
+  for (int i = 31; i <= 37; i++)
+  { // temp calibration data C1, V1, C2, V2, M, B, temp reading (7)
+  values[i] = (char *)malloc(sizeof(char) * 7);
+    sprintf(values[i], "%6d", 0);
+  }
+  //thermistor 4 (PC2)
+  values[38] = (char *)malloc(sizeof(char) * 11); // epoch timestamp for temp calibration
+  sprintf(values[38], "%10d", 0);
+  for (int i = 39; i <= 45; i++)
+  { // temp calibration data C1, V1, C2, V2, M, B, temp reading
+  values[i] = (char *)malloc(sizeof(char) * 7);
+    sprintf(values[i], "%6d", 0);
+  }
+  //thermistor 5 (PC3)
+  values[46] = (char *)malloc(sizeof(char) * 11); // epoch timestamp for temp calibration
+  sprintf(values[46], "%10d", 0);
+  for (int i = 47; i <= 53; i++)
+  { // temp calibration data C1, V1, C2, V2, M, B, temp reading
+  values[i] = (char *)malloc(sizeof(char) * 7);
+    sprintf(values[i], "%6d", 0);
+  }
 }
 
 void prepareForTriggeredMeasurement()
@@ -216,6 +251,8 @@ void measureSensorValues()
     int value = analogRead(sensorPins[i]);
     sprintf(values[4 + i], "%4d", value);
   }
+
+  // TODO: CREATE SEPARATE FUNCTION TO LOG SENSOR (THERMISTOR)
   // Measure and log temperature data and calibration info -> move to seperate function?
   unsigned int uiData = 0;
   unsigned short usData = 0;
@@ -261,7 +298,7 @@ bool checkDebugLoop()
 }
 
 bool checkThermistorCalibration()
-{
+{ // moved to thermistor
   unsigned int calTime = 0;
   bool thermistorCalibrated = false;
 
@@ -279,7 +316,7 @@ bool checkAwakeForUserInteraction(bool debugLoop)
   bool awakeForUserInteraction = false;
   if (timestamp() < awakeTime + USER_WAKE_TIMEOUT)
   {
-    Monitor::instance()->writeDebugMessage(F("Awake for user interaction"));
+    //Monitor::instance()->writeDebugMessage(F("Awake for user interaction"));
     awakeForUserInteraction = true;
   }
   else
@@ -550,7 +587,7 @@ void handleControlCommand()
 }
 
 void clearThermistorCalibration()
-{
+{ // make generic for any block of memory and add to eeprom
   Monitor::instance()->writeDebugMessage(F("clearing thermistor EEPROM registers"));
   for (size_t i = 0; i < TEMPERATURE_BLOCK_LENGTH; i++)
   {
@@ -559,7 +596,7 @@ void clearThermistorCalibration()
 }
 
 void calibrateThermistor() // calibrate using linear slope equation, log time
-{
+{ // move to thermistor
   //v = mc+b    m = (v2-v1)/(c2-c1)    b = (m*-c1)+v1
   //C1 C2 M B are scaled up for storage, V1 V2 are scaled up for calculation
   float c1,v1,c2,v2,m,b;
@@ -588,6 +625,7 @@ void calibrateThermistor() // calibrate using linear slope equation, log time
 
 float calculateTemperature()
 {
+  // move to thermistor
   //v = mx+b  =>  x = (v-b)/m
   //C1 C2 M B are scaled up for storage, V1 V2 are scaled up for calculation
   float temperature = -1;
@@ -681,9 +719,10 @@ void monitorConfiguration()
   }
   if (controlFlag == 3) // thermistor readings
   {
-    char valuesBuffer[35];
-    sprintf(valuesBuffer, "raw voltage: %i", analogRead(PB1));
-    Monitor::instance()->writeDebugMessage(valuesBuffer);
+    //char valuesBuffer[35];
+    //sprintf(valuesBuffer, "raw voltage: %i", analogRead(PB1));
+    //Monitor::instance()->writeDebugMessage(valuesBuffer);
+    monitorTemperature();
   }
   //test code simplified calls to write and read eeprom
   /*
@@ -733,7 +772,7 @@ void monitorValues()
 }
 
 void monitorTemperature() // print out calibration information & current readings
-{
+{ // move to thermistor
   blink(1,500);
   unsigned short c1, v1, c2, v2, m;
   unsigned int b;
@@ -759,7 +798,7 @@ void monitorTemperature() // print out calibration information & current reading
 
   float temperature = calculateTemperature();
 
-  char valuesBuffer[150];
-  sprintf(valuesBuffer,"EEPROM thermistor block\n(%i,%i)(%i,%i)\nv=%ic+%i\ncalTime:%i\ntemperature:%.2fC\n", c1, v1, c2, v2, m, b, calTime, temperature);
+  char valuesBuffer[200];
+  sprintf(valuesBuffer,"EEPROM thermistor block\n(%i,%i)(%i,%i)\nv=%ic+%i\ncalTime:%i\ntemperature.V:%i\ntemperature.C:%.2fC\n", c1, v1, c2, v2, m, b, calTime, analogRead(PB1), temperature);
   Monitor::instance()->writeDebugMessage(F(valuesBuffer));
 }

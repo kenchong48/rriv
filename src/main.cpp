@@ -23,7 +23,7 @@ void setup(void)
   clearUserInterrupt();
 
   //  Prepare I2C
-  i2c_bus_reset(I2C1); //try power down and up
+  i2c_bus_reset(I2C1); //try power down and up instead?
   //i2c_disable(I2C1);
   //i2c_master_enable(I2C1, 0);
   Wire.begin();
@@ -108,7 +108,7 @@ void loop(void)
     monitorValues();
   }
 
-  if (tempCalMode)
+  if (tempCalMode) // combine into flagged config mode
   {
     monitorTemperature();
   }
