@@ -1,5 +1,6 @@
 #include "datalogger.h"
 
+
 // Settings
 char version[5] = "v2.0";
 
@@ -254,7 +255,7 @@ void measureSensorValues()
 
   // TODO: CREATE SEPARATE FUNCTION TO LOG SENSOR (THERMISTOR)
   // Measure and log temperature data and calibration info -> move to seperate function?
-  unsigned int uiData = 0;
+  /*unsigned int uiData = 0;
   unsigned short usData = 0;
 
   readEEPROMBytes(TEMPERATURE_TIMESTAMP_ADDRESS_START, (unsigned char *)&uiData, TEMPERATURE_TIMESTAMP_ADDRESS_LENGTH);
@@ -271,7 +272,7 @@ void measureSensorValues()
   sprintf(values[16], "%i", usData);
   readEEPROMBytes(TEMPERATURE_B_ADDRESS_START, (unsigned char *)&uiData, TEMPERATURE_B_ADDRESS_LENGTH);
   sprintf(values[17], "%i", uiData);
-  sprintf(values[18], "%.2f", calculateTemperature());
+  sprintf(values[18], "%.2f", calculateTemperature());*/
 }
 
 bool checkBursting()
@@ -297,7 +298,7 @@ bool checkDebugLoop()
   return debugLoop;
 }
 
-bool checkThermistorCalibration()
+/*bool checkThermistorCalibration()
 { // moved to thermistor
   unsigned int calTime = 0;
   bool thermistorCalibrated = false;
@@ -308,7 +309,7 @@ bool checkThermistorCalibration()
     thermistorCalibrated = true;
   }
   return thermistorCalibrated;
-}
+}*/
 
 bool checkAwakeForUserInteraction(bool debugLoop)
 {
@@ -586,16 +587,16 @@ void handleControlCommand()
   }
 }
 
-void clearThermistorCalibration()
+/*void clearThermistorCalibration()
 { // make generic for any block of memory and add to eeprom
   Monitor::instance()->writeDebugMessage(F("clearing thermistor EEPROM registers"));
   for (size_t i = 0; i < TEMPERATURE_BLOCK_LENGTH; i++)
   {
     writeEEPROM(&Wire, EEPROM_I2C_ADDRESS, TEMPERATURE_C1_ADDRESS_START+i, 255);
   }
-}
+}*/
 
-void calibrateThermistor() // calibrate using linear slope equation, log time
+/*void calibrateThermistor() // calibrate using linear slope equation, log time
 { // move to thermistor
   //v = mc+b    m = (v2-v1)/(c2-c1)    b = (m*-c1)+v1
   //C1 C2 M B are scaled up for storage, V1 V2 are scaled up for calculation
@@ -621,9 +622,9 @@ void calibrateThermistor() // calibrate using linear slope equation, log time
   unsigned int tempCalTime= timestamp();
   writeEEPROMBytes(TEMPERATURE_TIMESTAMP_ADDRESS_START, (unsigned char*)&tempCalTime, TEMPERATURE_TIMESTAMP_ADDRESS_LENGTH);
   Monitor::instance()->writeDebugMessage(F("thermistor calibration complete"));
-}
+}*/
 
-float calculateTemperature()
+/*float calculateTemperature()
 {
   // move to thermistor
   //v = mx+b  =>  x = (v-b)/m
@@ -650,7 +651,7 @@ float calculateTemperature()
     Monitor::instance()->writeDebugMessage(F("Thermistor not calibrated"));
   }
   return temperature;
-}
+}*/
 
 void takeNewMeasurement()
 {
@@ -771,7 +772,7 @@ void monitorValues()
   printToBLE(valuesBuffer);
 }
 
-void monitorTemperature() // print out calibration information & current readings
+/*void monitorTemperature() // print out calibration information & current readings
 { // move to thermistor
   blink(1,500);
   unsigned short c1, v1, c2, v2, m;
@@ -801,4 +802,4 @@ void monitorTemperature() // print out calibration information & current reading
   char valuesBuffer[200];
   sprintf(valuesBuffer,"EEPROM thermistor block\n(%i,%i)(%i,%i)\nv=%ic+%i\ncalTime:%i\ntemperature.V:%i\ntemperature.C:%.2fC\n", c1, v1, c2, v2, m, b, calTime, analogRead(PB1), temperature);
   Monitor::instance()->writeDebugMessage(F(valuesBuffer));
-}
+}*/

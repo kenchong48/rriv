@@ -35,6 +35,8 @@ void setup(void)
 
   initializeFilesystem();
 
+  setupEEPROMSensorPins();
+
   //initBLE();
 
   readUniqueId(uuid);

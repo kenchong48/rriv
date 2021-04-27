@@ -266,7 +266,7 @@ int WaterBear_Control::processControlCommands(Stream * myStream)
       }
       return WT_TEMP_CAL_HIGH;
     }
-    else if(strncmp(request, ">WT_USER_VALUE:", 15) == 0)
+    else if(strncmp(request, ">WT_USER_VALUE:", 15) == 0) // serial -> log user value [10 char]
     {
       myStream->println("GOT WT_USER_VALUE<");
       char * commandPayloadPointer = (char *) malloc(11);
@@ -276,7 +276,7 @@ int WaterBear_Control::processControlCommands(Stream * myStream)
       lastCommandPayload = commandPayloadPointer;
       return WT_USER_VALUE;
     }
-    else if(strncmp(request, ">WT_USER_NOTE:", 14) == 0)
+    else if(strncmp(request, ">WT_USER_NOTE:", 14) == 0) // serial ->log user note [30 char]
     {
       myStream->println("GOT WT_USER_NOTE<");
       char * commandPayloadPointer = (char *) malloc(31);
@@ -286,7 +286,7 @@ int WaterBear_Control::processControlCommands(Stream * myStream)
       lastCommandPayload = commandPayloadPointer;
       return WT_USER_NOTE;
     }
-    else if(strncmp(request, ">WT_USER_INPUT:", 15) == 0)
+    else if(strncmp(request, ">WT_USER_INPUT:", 15) == 0) // serial -> log user [value]&[note]
     {
       myStream->println("GOT WT_USER_INPUT<");
       char * commandPayloadPointer = (char *) malloc(42);

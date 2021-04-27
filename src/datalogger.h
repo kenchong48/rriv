@@ -17,6 +17,7 @@
 #include "system/switched_power.h"
 
 #include "sensors/atlas_oem.h"
+#include "sensors/thermistor.h"
 
 // Settings
 
@@ -82,16 +83,16 @@ void takeNewMeasurement();
 
 void trackBurst(bool bursting);
 
-void monitorValues();
+void monitorValues(); // outdated.
 
-void calibrateThermistor();
+//void calibrateThermistor();
 
-void monitorTemperature();
+//void monitorTemperature();
 
-bool checkThermistorCalibration();
+//bool checkThermistorCalibration();
 
-void clearThermistorCalibration();
+//void clearThermistorCalibration();
 
-float calculateTemperature();
+//float calculateTemperature();
 
 void processControlFlag(char *flag);

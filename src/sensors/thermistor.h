@@ -9,28 +9,28 @@
  */
 
 //register offsets
-#define SENSOR_TYPE 0
-#define CALIBRATION_BOOL 1
-#define THERMISTOR_C1 2
-#define THERMISTOR_V1 4
-#define THERMISTOR_C2 6
-#define THERMISTOR_V2 8
-#define THERMISTOR_M 10
-#define THERMISTOR_B 12
-#define THERMISTOR_CAL_TIME 16
+#define SENSOR_PIN 0
+#define SENSOR_TYPE 1
+#define CALIBRATION_BOOL 2
+#define THERMISTOR_C1 3
+#define THERMISTOR_V1 5
+#define THERMISTOR_C2 7
+#define THERMISTOR_V2 9
+#define THERMISTOR_M 11
+#define THERMISTOR_B 13
+#define THERMISTOR_CALIBRATION_TIME 17
 
 
 typedef struct thermistor
 {
-  //sensor pin
-  unsigned short pin;
-
-  //calibration info
+  unsigned char sPin, sType, calBool;
   unsigned short c1, v1, c2, v2, m;
-  unsigned int b;
-  unsigned int calTime;
+  unsigned int b, calTime;
 } therm;
 
-short readThermistor(thermistor * newThermistor, byte address);
+void readThermistor(therm * newThermistor, byte address);
 short calibrateThermistor(byte address);
+float calculateTemperature(byte address);
+void monitorTemperature(byte address);
+
 #endif

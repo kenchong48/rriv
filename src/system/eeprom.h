@@ -92,17 +92,20 @@
 // Sensor Types
 #define SENSOR_TYPE_THERMISTOR 0
 
+#define SENSOR_CALIBRATED 1
+
 /*
  * Thermistor Register Map
- * 0 sensor type = 0
- * 1 calibrated boolean (1 yes, 0 no)
- * 2-3 c1
- * 4-5 v1
- * 6-7 c2
- * 8-9 v2
- * 10-11 m
- * 12-15 b
- * 16-19 calTime
+ * 0 sensor pin
+ * 1 sensor type = 0
+ * 2 calibrated boolean (1 yes, 0 no)
+ * 3-4 c1
+ * 5-6 v1
+ * 7-8 c2
+ * 9-10 v2
+ * 11-12 m
+ * 13-16 b
+ * 17-20 calibration timestamp
 */
 
 
