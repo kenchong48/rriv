@@ -1,7 +1,7 @@
 #include "control.h"
 #include "clock.h"
 
-#define MAX_REQUEST_LENGTH 50
+#define MAX_REQUEST_LENGTH 70 // serial commands
 
 int WaterBear_Control::state = 0;
 void * lastCommandPayload;
@@ -174,6 +174,11 @@ int WaterBear_Control::processControlCommands(Stream * myStream)
     else if(strncmp(request, ">WT_CONFIG", 10) == 0)
     {
       myStream->println(">CONFIG<");
+      char * commandPayloadPointer = (char *)malloc(8);
+      strncpy(commandPayloadPointer, &request[11],8);
+      commandPayloadPointer[8] ='\0';
+      lastCommandPayloadAllocated = true;
+      lastCommandPayload = commandPayloadPointer;
       return WT_CONTROL_CONFIG;
       // go into config mode
     }
@@ -214,7 +219,7 @@ int WaterBear_Control::processControlCommands(Stream * myStream)
       char calibrationPointStringValue[10];
       strncpy(calibrationPointStringValue, &request[10], 9);
       int value;
-      myStream->println(calibrationPointStringValue);
+      myStream->println(calibrationPointStringValue); // what is this line for???
       int found = sscanf(&calibrationPointStringValue[0], "%d", &value);
       if(found == 1)
       {

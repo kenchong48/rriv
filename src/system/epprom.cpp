@@ -46,9 +46,9 @@ void writeDeploymentIdentifier(char * deploymentIdentifier)
   }
 }
 
-
 void readUniqueId(unsigned char * uuid)
 {
+
   for(int i=0; i < UUID_LENGTH; i++)
   {
     unsigned int address = EEPROM_UUID_ADDRESS_START + i;
@@ -78,16 +78,14 @@ void readUniqueId(unsigned char * uuid)
     uuidString[2 * UUID_LENGTH] = '\0';
     for(short i=0; i < UUID_LENGTH; i++)
     {
-      sprintf(&uuidString[2*i], "%02X", (byte) uuid[i]);
+        sprintf(&uuidString[2*i], "%02X", (byte) uuid[i]);
     }
     Monitor::instance()->writeDebugMessage(uuidString);
-
     for(int i=0; i < UUID_LENGTH; i++)
     {
       unsigned int address = EEPROM_UUID_ADDRESS_START + i;
       writeEEPROM(&Wire, EEPROM_I2C_ADDRESS, address, uuid[i]);
     }
-
     for(int i=0; i < UUID_LENGTH; i++)
     {
       unsigned int address = EEPROM_UUID_ADDRESS_START + i;
@@ -101,4 +99,21 @@ void readUniqueId(unsigned char * uuid)
     }
     Monitor::instance()->writeDebugMessage(uuidString);
    }
+}
+
+void writeEEPROMBytes(byte address, unsigned char * data, uint8_t size) // Little Endian
+{
+  for (uint8_t i = 0; i < size; i++)
+  {
+    writeEEPROM(&Wire, EEPROM_I2C_ADDRESS, address+i, data[i]);
+  }
+}
+
+void readEEPROMBytes(byte address, unsigned char * data, uint8_t size) // Little Endian
+{
+  for (uint8_t i = 0; i < size; i++)
+  {
+    data[i] = readEEPROM(&Wire, EEPROM_I2C_ADDRESS, address+i);
+  }
+  data[size] = '\0';
 }
