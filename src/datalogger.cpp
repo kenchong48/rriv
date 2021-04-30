@@ -4,8 +4,8 @@
 // Settings
 char version[5] = "v2.0";
 
-short interval = 1;     // minutes between loggings when not in short sleep
-short burstLength = 25; // how many readings in a burst
+short interval = 2;     // minutes between loggings when not in short sleep
+short burstLength = 10; // how many readings in a burst
 
 short fieldCount = 54; // number of fields to be logged to SDcard file (22+32(+4 thermistors))
 
@@ -31,32 +31,63 @@ bool tempCalMode = false;
 bool tempCalibrated = false;
 short controlFlag = 0;
 
+
+void enableI2C1()
+{
+
+  i2c_disable(I2C1);
+  i2c_master_enable(I2C1, 0);
+  Monitor::instance()->writeDebugMessage(F("Enabled I2C1"));
+
+  delay(1000);
+  //i2c_bus_reset(I2C1); // hangs here if this is called
+  Monitor::instance()->writeDebugMessage(F("Enabled I2C1"));
+
+  Wire.begin();
+  delay(1000);
+
+  Monitor::instance()->writeDebugMessage(F("Began TwoWire 1"));
+
+  scanIC2(&Wire);
+}
+
 void enableI2C2()
 {
+  i2c_disable(I2C2);
   i2c_master_enable(I2C2, 0);
   Monitor::instance()->writeDebugMessage(F("Enabled I2C2"));
 
-  //i2c_bus_reset(I2C2);
+  i2c_bus_reset(I2C2);
   Wire2.begin();
   delay(1000);
 
   Monitor::instance()->writeDebugMessage(F("Began TwoWire 2"));
+
+  Monitor::instance()->writeDebugMessage(F("Scanning"));
+
   scanIC2(&Wire2);
 }
 
 void powerUpSwitchableComponents()
 {
   cycleSwitchablePower();
-  enableI2C2();
-  setupEC_OEM(&Wire2);
+  enableI2C1();
+  if(USE_EC_OEM){
+    enableI2C2();
+    setupEC_OEM(&Wire2);
+  }
+  Monitor::instance()->writeDebugMessage(F("Skipped EC_OEM"));
+
   Monitor::instance()->writeDebugMessage(F("Switchable components powered up"));
 }
 
-void powerDownSwitchableComponents()
+void powerDownSwitchableComponents() // called in stopAndAwaitTrigger
 {
-  hibernateEC_OEM();
-  i2c_disable(I2C2);
-  Monitor::instance()->writeDebugMessage(F("Switchable components powered down"));
+  if(USE_EC_OEM){
+    hibernateEC_OEM();
+    i2c_disable(I2C2);
+    Monitor::instance()->writeDebugMessage(F("Switchable components powered down"));
+  }
 }
 
 void startSerial2()
@@ -76,14 +107,20 @@ void setupHardwarePins()
 {
   Monitor::instance()->writeDebugMessage(F("setting up hardware pins"));
   //pinMode(BLE_COMMAND_MODE_PIN, OUTPUT); // Command Mode pin for BLE
+
   pinMode(INTERRUPT_LINE_7_PIN, INPUT_PULLUP); // This the interrupt line 7
-  //pinMode(PB10, INPUT_PULLDOWN); // This WAS interrupt line 10, user interrupt. Needs to be reassigned.
   pinMode(ANALOG_INPUT_1_PIN, INPUT_ANALOG);
   pinMode(ANALOG_INPUT_2_PIN, INPUT_ANALOG);
   pinMode(ANALOG_INPUT_3_PIN, INPUT_ANALOG);
   pinMode(ANALOG_INPUT_4_PIN, INPUT_ANALOG);
   pinMode(ANALOG_INPUT_5_PIN, INPUT_ANALOG);
   pinMode(ONBOARD_LED_PIN, OUTPUT); // This is the onboard LED ? Turns out this is also the SPI1 clock.  niiiiice.
+
+  // pinMode(PA4, INPUT_PULLDOWN); // mosfet for battery measurement - should be OUTPUT ??
+
+  // redundant?
+  //pinMode(PA2, OUTPUT); // USART2_TX/ADC12_IN2/TIM2_CH3
+  //pinMode(PA3, INPUT); // USART2_RX/ADC12_IN3/TIM2_CH4
 }
 
 void blinkTest()
@@ -131,8 +168,8 @@ void allocateMeasurementValuesMemory()
   sprintf(values[0], "%50d", 0);
   values[1] = (char *)malloc(sizeof(char) * ((2 * UUID_LENGTH + 1))); // UUID 25
   sprintf(values[1], "%24d", 0);
-  values[2] = (char *)malloc(sizeof(char) * 11); // epoch timestamp
-  sprintf(values[2], "%10d", 0);
+  values[2] = (char *)malloc(sizeof(char) * 15); // epoch timestamp.millis
+  sprintf(values[2], "%10.3f", (double)0);
   values[3] = (char *)malloc(sizeof(char) * 24); // human readable timestamp
   sprintf(values[3], "%23d", 0);
   for (int i = 4; i <= 10; i++)
@@ -200,7 +237,7 @@ void prepareForUserInteraction()
   char humanTime[26];
   time_t awakenedTime = timestamp();
 
-  t_t2ts(awakenedTime, humanTime);
+  t_t2ts(awakenedTime, millis(), humanTime);
   Monitor::instance()->writeDebugMessage(F("Awakened by user"));
   Monitor::instance()->writeDebugMessage(F(humanTime));
 
@@ -240,9 +277,30 @@ void measureSensorValues()
   sprintf(values[1], "%s", uuidString);
 
   // Fetch and Log time from DS3231 RTC as epoch and human readable timestamps
-  time_t currentTime = timestamp();
-  sprintf(values[2], "%lld", currentTime); // convert time_t value into string
-  t_t2ts(currentTime, values[3]);          // convert time_t value to human readable timestamp
+  static double currentTime;
+  static time_t currentEpoch;
+  static uint32 offsetMillis;
+  if (burstCount == 0)
+  {
+    Monitor::instance()->writeDebugMessage(F("setting base time"));
+    currentEpoch = timestamp();
+    offsetMillis = millis();
+  }
+  /*else if (!currentEpoch && !offsetMillis)
+  {
+    currentEpoch = timestamp();
+    offsetMillis = millis();
+  }*/
+  uint32 currentMillis = millis();
+  currentTime = (double)currentEpoch + (((double)currentMillis - offsetMillis) / 1000);
+
+  //debug timestamp calculations
+  char valuesBuffer[190];
+  sprintf(valuesBuffer, "burstCount=%i currentMillis=%i offsetMillis=%i currentEpoch=%lld currentTime=%10.3f\n", burstCount, currentMillis, offsetMillis, currentEpoch, currentTime);
+  Monitor::instance()->writeDebugMessage(F(valuesBuffer));
+
+  sprintf(values[2], "%10.3f", currentTime); // convert double value into string
+  t_t2ts(currentTime, currentMillis-offsetMillis, values[3]);        // convert time_t value to human readable timestamp
 
   // Measure the new data
   short sensorCount = 6;
@@ -365,10 +423,6 @@ void stopAndAwaitTrigger()
     Monitor::instance()->writeDebugMessage(F("Alarm 1"));
   }
 
-  setNextAlarm(interval); // If we are in this block, alawys set the next alarm
-  powerDownSwitchableComponents();
-  disableSwitchedPower();
-
   printInterruptStatus(Serial2);
   Monitor::instance()->writeDebugMessage(F("Going to sleep"));
 
@@ -376,27 +430,53 @@ void stopAndAwaitTrigger()
   int iser1, iser2, iser3;
   storeAllInterrupts(iser1, iser2, iser3);
 
-  clearAllInterrupts();
-  clearAllPendingInterrupts();
-  clearUserInterrupt();
+  clearManualWakeInterrupt();
+  interval = 1;
+  setNextAlarmInternalRTC(interval); // close to the right code
 
-  enableClockInterrupt();
-  enableUserInterrupt();
+  powerDownSwitchableComponents();
+  disableSwitchedPower();
+
   awakenedByUser = false; // Don't go into sleep mode with any interrupt state
 
-  Serial2.end();
+ // filesystem->closeFileSystem();
+//  WaterBear_FileSystem::closeFileSystem(); // close file, filesystem, turn off sdcard
+
+  Serial2.println("hi2");
+  Serial2.flush();
+
+  componentsStopMode();
+
+  disableSerialLog(); // TODO
+  hardwarePinsStopMode(); // switch to input mode
+
+  clearAllInterrupts();
+  clearAllPendingInterrupts();
+
+  enableManualWakeInterrupt(); // The DS3231, which is not powered during stop mode on v0.2 hardware
+  nvic_irq_enable(NVIC_RTCALARM); // enable our RTC alarm interrupt
+
+
 
   enterStopMode();
-  //enterSleepMode()
+  //enterSleepMode();
 
-  Serial2.begin(SERIAL_BAUD);
+  //reopen sd card file (save file name? or use variable that has it already)
+  //filesystem->openFileForAppend();
 
   reenableAllInterrupts(iser1, iser2, iser3);
-  disableClockInterrupt();
-  disableUserInterrupt();
+  disableManualWakeInterrupt();
+  nvic_irq_disable(NVIC_RTCALARM);
+
+  enableSerialLog();
+  setupHardwarePins(); // used from setup steps in datalogger
+
+  Monitor::instance()->writeDebugMessage(F("Awakened by interrupt"));
+
+  /////turn stuff back on (components, hardware pins)
+  componentsBurstMode();
 
   // We have woken from the interrupt
-  Monitor::instance()->writeDebugMessage(F("Awakened by interrupt"));
   printInterruptStatus(Serial2);
 
   powerUpSwitchableComponents();
@@ -663,10 +743,12 @@ void takeNewMeasurement()
 
   // OEM EC
   float ecValue = -1;
-  bool newDataAvailable = readECDataIfAvailable(&ecValue);
-  if (!newDataAvailable)
-  {
-    Monitor::instance()->writeDebugMessage(F("New EC data not available"));
+  if(USE_EC_OEM){
+    bool newDataAvailable = readECDataIfAvailable(&ecValue);
+    if (!newDataAvailable)
+    {
+      Monitor::instance()->writeDebugMessage(F("New EC data not available"));
+    }
   }
 
   //Serial2.print(F("Got EC value: "));
@@ -769,6 +851,10 @@ void monitorValues()
       values[0], values[1], values[2], values[3], values[4], values[5],
       values[6],values[7], values[8], values[9], values[10]);
   Monitor::instance()->writeDebugMessage(F(valuesBuffer));
+
+  //sprintf(valuesBuffer, "burstcount = %i current millis = %i\n", burstCount, (int)millis());
+  //Monitor::instance()->writeDebugMessage(F(valuesBuffer));
+
   printToBLE(valuesBuffer);
 }
 

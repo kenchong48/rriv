@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "datalogger.h"
+#include <libmaple/pwr.h> // TODO: move this
 
 // Setup and Loop
 
@@ -8,27 +9,42 @@ void setup(void)
 
   startSerial2();
 
+  // disable unused components and hardware pins //
+  componentsAlwaysOff();
+  //hardwarePinsAlwaysOff(); // TODO are we turning off I2C pins still, which is wrong
+
   setupSwitchedPower();
+
+  Serial2.println("hello");
   enableSwitchedPower();
 
   setupHardwarePins();
+    Serial2.println("hello");
+    Serial2.flush();
+
+  // digitalWrite(PA4, LOW); // turn on the battery measurement
 
   //blinkTest();
 
-  // Don't respond to interrupts during setup
-  disableClockInterrupt();
-  disableUserInterrupt();
 
-  clearClockInterrupt();
-  clearUserInterrupt();
+  // Set up the internal RTC
+  RCC_BASE->APB1ENR |= RCC_APB1ENR_PWREN;
+  RCC_BASE->APB1ENR |= RCC_APB1ENR_BKPEN;
+  PWR_BASE->CR |= PWR_CR_DBP; // Disable backup domain write protection, so we can write
 
-  //  Prepare I2C
-  i2c_bus_reset(I2C1); //try power down and up instead?
-  //i2c_disable(I2C1);
-  //i2c_master_enable(I2C1, 0);
-  Wire.begin();
-  delay(1000);
-  scanIC2(&Wire);
+
+  // delay(20000);
+
+  allocateMeasurementValuesMemory();
+
+  setupWakeInterrupts();
+
+  powerUpSwitchableComponents();
+  delay(2000);
+
+   // Don't respond to interrupts during setup
+  disableManualWakeInterrupt();
+  clearManualWakeInterrupt();
 
   // Clear the alarms so they don't go off during setup
   clearAllAlarms();
@@ -41,20 +57,17 @@ void setup(void)
 
   readUniqueId(uuid);
 
-  allocateMeasurementValuesMemory();
 
-  setupWakeInterrupts();
+  setNotBursting(); // prevents bursting during first loop
 
-  powerUpSwitchableComponents();
-
-  setNotBursting();
+  //awakeTime = timestamp(); // Push awake time forward and provide time for user interation during setup()
 
   /* We're ready to go! */
   Monitor::instance()->writeDebugMessage(F("done with setup"));
   Serial2.flush();
 }
 
-
+/* main run loop order of operation: */
 void loop(void)
 {
   bool bursting = checkBursting();
@@ -107,6 +120,10 @@ void loop(void)
 
   if (debugValuesMode)
   {
+    if (burstCount == burstLength) // will cause loop() to continue until mode turned off
+    {
+      prepareForTriggeredMeasurement();
+    }
     monitorValues();
   }
 
