@@ -49,7 +49,7 @@
 #define TEMPERATURE_B_ADDRESS_LENGTH 4
 
 #define TEMPERATURE_SCALER 100 // applies to C1 C2 M B values for storage
-#define TEMPERATURE_BLOCK_LENGTH 18//for resetting 64-81
+#define TEMPERATURE_BLOCK_LENGTH 18 // for resetting 64-81
 
 void writeEEPROM(TwoWire * wire, int deviceaddress, byte eeaddress, byte data );
 byte readEEPROM(TwoWire * wire, int deviceaddress, byte eeaddress );

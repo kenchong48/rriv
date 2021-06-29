@@ -21,12 +21,9 @@ void setup(void)
 
   setupSwitchedPower();
 
-  Serial2.println("hello");
   enableSwitchedPower();
 
   setupHardwarePins();
-  Serial2.println("hello");
-  Serial2.flush();
 
   // digitalWrite(PA4, LOW); // turn on the battery measurement
 
@@ -98,7 +95,7 @@ void loop(void)
 {
 
   startCustomWatchDog();
-  printWatchDogStatus();
+  //printWatchDogStatus();
 
   // calculate and print free memory
   // reset the system if we are running out of memory

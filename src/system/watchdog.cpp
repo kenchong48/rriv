@@ -4,7 +4,7 @@
 
 void timerFired(){
   timer_pause(TIMER1);
-  Serial2.println("FT!");
+  //Serial2.println("FT!");
   // Serial2.flush(); // causes crash
   delay(5000);
   nvic_sys_reset();
@@ -14,8 +14,8 @@ void startCustomWatchDog(){
   // Serial2.println("skipped custom watchdog!");
   // return;
 
-  Serial2.println("Setup custom watchdog!");
-  Serial2.flush();
+  //Serial2.println("Setup custom watchdog!");
+  //Serial2.flush();
 
   timer_init(TIMER1);
   timer_set_prescaler(TIMER1, 65535);  //  64000000 / 65536 = 976.5 Hz
@@ -28,12 +28,12 @@ void startCustomWatchDog(){
   timer_generate_update(TIMER1);
 
   timer_resume(TIMER1);
-  Serial2.println("Resumed timer");
-  Serial2.flush();
+  //Serial2.println("Resumed timer");
+  //Serial2.flush();
 
   timer_attach_interrupt(TIMER1, TIMER_CC1_INTERRUPT, timerFired);
-  Serial2.println("Attached interrupt!");
-  Serial2.flush();
+  //Serial2.println("Attached interrupt!");
+  //Serial2.flush();
 
 }
 

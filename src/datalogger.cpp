@@ -4,7 +4,7 @@
 // Settings
 char version[5] = "v2.0";
 
-short interval = 15;     // minutes between loggings when not in short sleep
+short interval = 1;     // minutes between loggings when not in short sleep
 short burstLength = 10; // how many readings in a burst
 
 short fieldCount = 22; // number of fields to be logged to SDcard file
@@ -408,8 +408,8 @@ void stopAndAwaitTrigger()
   componentsStopMode();
 
   disableCustomWatchDog();
-  Serial2.println("disabled watchdog");
-  Serial2.flush();
+  //Serial2.println("disabled watchdog");
+  //Serial2.flush();
   disableSerialLog(); // TODO
   hardwarePinsStopMode(); // switch to input mode
   

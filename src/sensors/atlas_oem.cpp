@@ -21,10 +21,10 @@ void setupEC_OEM(TwoWire *wire)
   struct param_OEM_EC parameter;
   parameter = oem_ec->getAllParam();
 
-  Monitor::instance()->writeDebugMessage(F("test:"));
+  /*Monitor::instance()->writeDebugMessage(F("test:"));
   sprintf(message, "salinity= %f\nconductivity= %f\ntds= %f\nSalinity stable = %s",
           parameter.salinity, parameter.conductivity, parameter.tds, (oem_ec->isSalinityStable() ? "yes" : "no"));
-  Monitor::instance()->writeDebugMessage(message);
+  Monitor::instance()->writeDebugMessage(message);*/
 
   oem_ec->setLedOn(true);
   //oem_ec->setLedOn(false);
