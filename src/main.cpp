@@ -46,7 +46,6 @@ void setup(void)
 
   //blinkTest();
   
-
   // Set up the internal RTC
   RCC_BASE->APB1ENR |= RCC_APB1ENR_PWREN;
   RCC_BASE->APB1ENR |= RCC_APB1ENR_BKPEN;
@@ -81,7 +80,7 @@ void setup(void)
   Monitor::instance()->writeDebugMessage(F("done with setup"));
   Serial2.flush();
 
-  setupSensors();
+  //setupSensors();
   Monitor::instance()->writeDebugMessage(F("done with sensor setup"));
   Serial2.flush();
 
@@ -99,10 +98,11 @@ void loop(void)
   //printWatchDogStatus();
 
   // Get reading from RGB Sensor
+  /*
   char * data = AtlasRGB::instance()->mallocDataMemory();
   AtlasRGB::instance()->takeMeasurement(data);
   free(data);
- 
+  */
 
   checkMemory();
 

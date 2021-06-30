@@ -1,17 +1,6 @@
 #ifndef WATERBEAR_DRIVER_TEST
 #define WATERBEAR_DRIVER_TEST
 
-#define SENSOR_SLOT_1 360
-#define SENSOR_SLOT_2 424
-#define SENSOR_SLOT_3 488
-#define SENSOR_SLOT_4 552
-#define SENSOR_SLOT_5 616
-#define SENSOR_SLOT_6 680
-#define SENSOR_SLOT_7 744
-#define SENSOR_SLOT_8 808
-#define SENSOR_SLOT_9 872
-#define SENSOR_SLOT_10 936
-
 /*
  * EEPROM Partition scheme (24LC01B 1Kbit)
  * 000-359 Waterbear Device Info, Calibration, Significant Values
@@ -27,15 +16,36 @@
  * 936-999 Sensor Calibration Block 10
 */
 
+#define SENSOR_SLOT_1 360
+#define SENSOR_SLOT_2 424
+#define SENSOR_SLOT_3 488
+#define SENSOR_SLOT_4 552
+#define SENSOR_SLOT_5 616
+#define SENSOR_SLOT_6 680
+#define SENSOR_SLOT_7 744
+#define SENSOR_SLOT_8 808
+#define SENSOR_SLOT_9 872
+#define SENSOR_SLOT_10 936
+
+#define SENSOR_TYPE_LENGTH 2
+
+#define NTC_10K_THERMISTOR 1
+#define AS_CONDUCTIVITY 2
+#define AS_RGB 3
+#define AS_CO2 4
+#define FIG_METHANE 5
+#define AF_GPS 6
+
 typedef struct common_config{
     // note needs to be 32 bytes total (multiple of 4)
     short sensor_type; // 2 bytes
     char slot; // 1 byte
     char column_prefix[5]; // 5 bytes
     char sensor_burst; // 1 byte
+    unsigned short int warmup; // 2 bytes, in seconds? (65535/60=1092)
     char tag[4]; // 4 bytes 
     char units[2]; // 2 bytes
-    char sensor_note[17]; // 17 bytes
+    char sensor_note[15]; // 15 bytes
 }common_config_s;
 
 typedef struct thermistor_type{
@@ -54,35 +64,46 @@ typedef struct thermistor_type{
     char padding[13];
 }thermistor_s;
 
-typedef struct fig_methane_type{
-    // figaro NGM2611-E13
+typedef struct fig_e13_methane_type{
+    // Figaro NGM2611-E13 Methane Sensor Module
     common_config_s common;
-    unsigned short int warmup; // 2 bytes, in seconds? (65535/60=1092)
 
-    char padding [30];
+    char padding[32];
 }fig_methane_s;
 
-typedef struct as_conductivity_type{
+typedef struct as_mini_conductivity_k1_type{
+    //Atlas Scientific Mini Conductivity Probe K 1.0
     common_config_s common;
 
-    char padding [32];
+    char padding[32];
 }as_conductivity_s;
 
 typedef struct as_rgb_type{
+    //Atlas Scientific EZO-RGB Embedded Color Sensor
     common_config_s common;
 
-    char padding [32];
+    char padding[32];
 }as_rbg_s;
 
 typedef struct as_co2_type{
+    //Atlas Scientific EZO-CO2 Embedded NDIR Carbon Dioxide Sensor
     common_config_s common;
 
-    char padding [32];
+    char padding[32];
 }as_co2_s;
+
+typedef struct af_gps_type{
+    //Adafruit GPS - model?
+    common_config_s common;
+
+    char padding[32];
+}gps_s;
 
 // void * for reading struct and sensor type based on first 2 bytes of structs
 
-void init_struct(short sensor_slot); //populate struct with defaults based on sensor type
+void init_struct(char sensor_slot); //populate struct with defaults based on sensor type
 void new_config(short sensor_slot); // malloc an empty config struct based on sensor type?
+void get_sensor_type(char sensor_slot); // return sensor type from eeprom
+
 
 #endif
