@@ -38,21 +38,25 @@
 
 typedef struct common_config{
     // note needs to be 32 bytes total (multiple of 4)
+    // rearrange in blocks of 4bytes for diagram
+    // sensor.h
     short sensor_type; // 2 bytes
     char slot; // 1 byte
     char column_prefix[5]; // 5 bytes
     char sensor_burst; // 1 byte
     unsigned short int warmup; // 2 bytes, in seconds? (65535/60=1092)
-    char tag[4]; // 4 bytes 
-    char units[2]; // 2 bytes
-    char sensor_note[15]; // 15 bytes
-}common_config_s;
+    char tag[4]; // 4 bytes
 
+    char padding[17]; // 17bytes
+}common_config_sensor;
+
+//split into drivers
 typedef struct thermistor_type{
     // 10k ohm NTC 3950b thermistor
-    common_config_s common;
-    bool calibrated; // 1 byte => bit mask
+    common_config_sensor common;
+    char calibrated; // 1 byte => bit mask
     char sensor_port; // 1 byte => add into bit mask (4bits)
+    // generalize for a generic linear calibrated sensor...? (x,y)
     unsigned short m; // 2bytes, slope
     int b; // 4bytes, y-intercept
     unsigned int cal_timestamp; // 4byte epoch timestamp at calibration
@@ -62,42 +66,42 @@ typedef struct thermistor_type{
     short int v2; // 2bytes for 2pt calibration
 
     char padding[13];
-}thermistor_s;
+}thermistor_sensor;
 
 typedef struct fig_e13_methane_type{
     // Figaro NGM2611-E13 Methane Sensor Module
-    common_config_s common;
+    common_config_sensor common;
 
     char padding[32];
-}fig_methane_s;
+}fig_methane_sensor;
 
 typedef struct as_mini_conductivity_k1_type{
     //Atlas Scientific Mini Conductivity Probe K 1.0
-    common_config_s common;
+    common_config_sensor common;
 
     char padding[32];
-}as_conductivity_s;
+}as_conductivity_sensor;
 
 typedef struct as_rgb_type{
     //Atlas Scientific EZO-RGB Embedded Color Sensor
-    common_config_s common;
+    common_config_sensor common;
 
     char padding[32];
-}as_rbg_s;
+}as_rbg_sensor;
 
 typedef struct as_co2_type{
     //Atlas Scientific EZO-CO2 Embedded NDIR Carbon Dioxide Sensor
-    common_config_s common;
+    common_config_sensor common;
 
     char padding[32];
-}as_co2_s;
+}as_co2_sensor;
 
 typedef struct af_gps_type{
     //Adafruit GPS - model?
-    common_config_s common;
+    common_config_sensor common;
 
     char padding[32];
-}gps_s;
+}gps_sensor;
 
 // void * for reading struct and sensor type based on first 2 bytes of structs
 
