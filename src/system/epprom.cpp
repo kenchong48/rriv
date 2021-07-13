@@ -2,48 +2,88 @@
 #include "monitor.h"
 #include "utilities/STM32-UID.h"
 
-void writeEEPROM(TwoWire * wire, int deviceaddress, short eeaddress, byte data )
+void writeEEPROM(TwoWire * wire, int deviceaddress, uint16_t eeaddress, byte data )
 {
   wire->beginTransmission(deviceaddress);
   wire->write(eeaddress);
   wire->write(data);
-  wire->endTransmission();
+  wire->endTransmission(true);
 
   delay(5);
 }
 
-byte readEEPROM(TwoWire * wire, int deviceaddress, short eeaddress )
+byte readEEPROM(TwoWire * wire, int deviceaddress, uint16_t eeaddress )
 {
   byte rdata = 0xFF;
 
   wire->beginTransmission(deviceaddress);
   wire->write(eeaddress);
-  wire->endTransmission();
+  wire->endTransmission(true);
 
   wire->requestFrom(deviceaddress,1);
-
   if(wire->available()) rdata = wire->read();
 
   return(rdata);
 }
 
+void readAllEEPROM(TwoWire * wire, int deviceaddress)
+{
+  byte rdata = 0xFF;
+  byte eeadress = 0;
+
+  wire->beginTransmission(deviceaddress);
+  wire->write(eeadress);
+  wire->endTransmission(true);
+
+  wire->requestFrom(deviceaddress,1);
+  while (eeadress < 128)
+  {
+    Serial2.print("eeadress=");
+    Serial2.println(eeadress);
+    for (size_t i = 0; i < 8; i++)
+    {
+      if(wire->available()) rdata = wire->read();
+      else  rdata = 0x2A;
+      Serial2.print((char)rdata);
+      Serial2.print("|");
+    }
+    break;
+    eeadress++;
+    Serial2.println();
+    Serial2.flush();
+  }
+  wire->endTransmission();
+}
+
 void readDeploymentIdentifier(char * deploymentIdentifier)
 {
+  Serial2.println("readDeploymentID");
+  Serial2.flush();
   for(short i=0; i < DEPLOYMENT_IDENTIFIER_LENGTH; i++)
   {
     short address = EEPROM_DEPLOYMENT_IDENTIFIER_ADDRESS_START + i;
+    Serial2.print(address);
+    Serial2.print(",");
     deploymentIdentifier[i] = readEEPROM(&Wire, EEPROM_I2C_ADDRESS, address);
   }
+  Serial2.println();
+  Serial2.flush();
   deploymentIdentifier[DEPLOYMENT_IDENTIFIER_LENGTH] = '\0';
 }
 
 void writeDeploymentIdentifier(char * deploymentIdentifier)
 {
+  Serial2.println("writeDeploymentID");
+  Serial2.flush();
   for(short i=0; i < DEPLOYMENT_IDENTIFIER_LENGTH; i++)
   {
     short address = EEPROM_DEPLOYMENT_IDENTIFIER_ADDRESS_START + i;
+    Serial2.print(address);
+    Serial2.print(",");
     writeEEPROM(&Wire, EEPROM_I2C_ADDRESS, address, deploymentIdentifier[i]);
   }
+  Serial2.println();
+  Serial2.flush();
 }
 
 void readUniqueId(unsigned char * uuid)
@@ -121,7 +161,7 @@ void readEEPROMBytes(short address, unsigned char * data, uint8_t size) // Littl
   data[size] = '\0';
 }
 
-void readEEPROMBytesMem(short address, void * destination, uint8_t size) // Little Endian
+void readEEPROMBytesMem(short address, void * destination, uint16_t size) // Little Endian
 {
   Serial2.println("readEEPROMBytesMem");
   Serial2.flush();
@@ -138,7 +178,7 @@ void readEEPROMBytesMem(short address, void * destination, uint8_t size) // Litt
   memcpy(destination, &buffer, size); // copy buffer to destination
 }
 
-void writeEEPROMBytesMem(short address, void * source, uint8_t size)
+void writeEEPROMBytesMem(short address, void * source, uint16_t size)
 {
   Serial2.println("writeEEPROMBytesMem");
   Serial2.flush();

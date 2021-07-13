@@ -43,6 +43,7 @@ void getDefaultsTAS(temperature_analog_sensor *fillValues)
 
 void testReadConfig(short sensor_slot, temperature_analog_sensor *destination)
 {
+    // this function seems pointless, sensor slots will all be 64 bytes
     Serial2.println("testReadConfig");
     Serial2.flush();
 

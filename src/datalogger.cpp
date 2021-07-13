@@ -1016,12 +1016,57 @@ void takeNewMeasurement()
   //TEST CODE - KC//
   
   Serial2.println("KC TEST START");
+  Serial2.println("EEPROM read all");
+  readAllEEPROM(&Wire, EEPROM_I2C_ADDRESS);
+  /*
+  Serial2.flush();
+  for (size_t i = 0; i < 128*3; i++)
+  {
+    Serial2.print("i=");
+    Serial2.println(i);
+    Serial2.print((char)readEEPROM(&Wire, EEPROM_I2C_ADDRESS, i));
+    Serial2.print("=");
+    Serial2.println((char)readEEPROM(&Wire, EEPROM_I2C_ADDRESS, 128+i));
+    Serial2.println();
+    Serial2.flush();
+  }
+  */
+  
+  /*
+  char writeChars[75] = "abcdefghijklmnopqrstuvwxyz01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890";
+  char readChar = '0';
+  for (size_t i = 0; i < 75; i++)
+  {
+    short address = 257 + i;
+    Serial2.print("testing address:");
+    Serial2.println(address);
+    Serial2.flush();
+    readChar = readEEPROM(&Wire, EEPROM_I2C_ADDRESS, address);
+    Serial2.print(readChar);
+    writeEEPROM(&Wire, EEPROM_I2C_ADDRESS,  address, writeChars[i]);
+    readChar = readEEPROM(&Wire, EEPROM_I2C_ADDRESS, address);
+    Serial2.print("=>");
+    Serial2.println(readChar);
+    Serial2.flush();
+    Serial2.print("checking address:");
+    address = address - 257; // offset 257-> 0 offset 399 => 15
+    Serial2.print(address);
+    Serial2.print("=");
+    readChar = readEEPROM(&Wire, EEPROM_I2C_ADDRESS, address);
+    Serial2.println(readChar);
+    Serial2.println();
+    Serial2.flush();
+    delay(500);
+  }
+  */
+  /*
   testWriteConfig(SENSOR_SLOT_2_ADDRESS);
 
   temperature_analog_sensor TAS;
   testReadConfig(SENSOR_SLOT_2_ADDRESS, &TAS);
   
   printSensorConfig(TAS);
+  */
   Serial2.println("KC TEST FINISH");
 
   // Get reading from RGB Sensor

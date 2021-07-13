@@ -23,6 +23,8 @@
 
 #define EEPROM_RESET_VALUE 255 // max value of a byte
 
+//NOTE: addresses need to be defined differently following a 128x8 structure
+
 #define EEPROM_UUID_ADDRESS_START 0
 #define EEPROM_UUID_ADDRESS_END 15
 #define UUID_LENGTH 12 // STM32 has a 12 byte UUID, leave extra space for the future 16
@@ -94,8 +96,10 @@
 #define TEMPERATURE_SCALER 100 // applies to C1 C2 M B values for storage
 #define TEMPERATURE_BLOCK_LENGTH 18//for resetting 64-81
 
-void writeEEPROM(TwoWire * wire, int deviceaddress, short eeaddress, byte data );
-byte readEEPROM(TwoWire * wire, int deviceaddress, short eeaddress );
+void writeEEPROM(TwoWire * wire, int deviceaddress, uint16_t eeaddress, byte data );
+byte readEEPROM(TwoWire * wire, int deviceaddress, uint16_t eeaddress );
+
+void readAllEEPROM(TwoWire * wire, int deviceaddress);
 
 void readDeploymentIdentifier(char * deploymentIdentifier);
 void writeDeploymentIdentifier(char * deploymentIdentifier);
@@ -105,8 +109,8 @@ void readUniqueId(unsigned char * uuid); // uuid must point to char[UUID_LENGTH]
 void writeEEPROMBytes(short address, unsigned char * data, uint8_t size);
 void readEEPROMBytes(short address, unsigned char * data, uint8_t size);
 
-void readEEPROMBytesMem(short address, void * destination, uint8_t size); // Little Endian
-void writeEEPROMBytesMem(short address, void * source, uint8_t size);
+void readEEPROMBytesMem(short address, void * destination, uint16_t size); // Little Endian
+void writeEEPROMBytesMem(short address, void * source, uint16_t size);
 
 void clearEEPROMAddress(short address, uint8_t length);
 
