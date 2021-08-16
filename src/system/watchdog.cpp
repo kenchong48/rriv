@@ -57,7 +57,20 @@ void disableCustomWatchDog(){
 }
 
 void printWatchDogStatus(){
-  Serial2.println("Timer Count:");
+  Serial2.print("Timer Count: ");
   int timerCount = timer_get_count(TIMER1);
   Serial2.println(timerCount);
+  Serial2.flush();
+}
+
+void pauseCustomWatchDog(){
+  Serial2.println("pausing watchdog");
+  Serial2.flush();
+  timer_pause(TIMER1);
+}
+
+void resumeCustomWatchDog(){
+  Serial2.println("resuming watchdog");
+  Serial2.flush();
+  timer_resume(TIMER1);
 }

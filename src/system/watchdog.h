@@ -7,3 +7,7 @@ void startCustomWatchDog();
 void disableCustomWatchDog();
 
 void printWatchDogStatus();
+
+void pauseCustomWatchDog();
+
+void resumeCustomWatchDog();

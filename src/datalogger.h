@@ -22,6 +22,8 @@
 
 extern short interval;     // minutes between loggings when not in short sleep
 extern short burstLength; // how many readings in a burst
+extern short burstDelay; // minutes before starting a burst
+extern short burstLoops; // how many iterations of bursts
 
 extern short fieldCount; // number of fields to be logged to SDcard file
 
@@ -34,6 +36,7 @@ extern unsigned long lastMillis;
 extern uint32_t awakeTime;
 extern uint32_t lastTime;
 extern short burstCount;
+extern short burstLoopCount;
 extern bool configurationMode;
 extern bool debugValuesMode;
 extern bool clearModes;
@@ -65,9 +68,13 @@ void prepareForUserInteraction();
 
 void setNotBursting();
 
+void setNotBurstLooping();
+
 void measureSensorValues();
 
 bool checkBursting();
+
+bool checkBurstLoop();
 
 bool checkDebugLoop();
 
@@ -84,6 +91,8 @@ void monitorConfiguration();
 void takeNewMeasurement();
 
 void trackBurst(bool bursting);
+
+void trackBurstLoop(bool burstLooping);
 
 void monitorValues();
 

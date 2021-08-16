@@ -9,12 +9,12 @@
 
 char version[5] = "v2.0";
 
-short interval = 15;     // minutes between loggings when not in short sleep
+short interval = 50;     // minutes between loggings when not in short sleep
 short burstLength = 10; // how many readings in a burst
+short burstDelay = 1; // minutes to delay at the start of each burstLoop
+short burstLoops = 10; // how many iterations of bursts
 
 short fieldCount = 26; // number of fields to be logged to SDcard file
-//char *nametest ="K217_Methane_Amazon_Test"; // >WT_DEPLOY:K217_Methane_Amazon_Test<
-//>WT_SET_RTC:1625247790<
 // Pin Mappings for Nucleo Board
 // BLE USART
 //#define D4 PB5
@@ -30,6 +30,7 @@ unsigned long lastMillis = 0;
 uint32_t awakeTime = 0;
 uint32_t lastTime = 0;
 short burstCount = 0;
+short burstLoopCount = 0;
 bool configurationMode = false;
 bool debugValuesMode = false;
 bool clearModes = false;
@@ -40,7 +41,6 @@ short controlFlag = 0;
 
 void enableI2C1()
 {
-  
   i2c_disable(I2C1);
   i2c_master_enable(I2C1, 0, 0);
   Monitor::instance()->writeDebugMessage(F("Enabled I2C1"));
@@ -122,6 +122,10 @@ void setupHardwarePins()
   pinMode(ANALOG_INPUT_5_PIN, INPUT_ANALOG);
   pinMode(ONBOARD_LED_PIN, OUTPUT); // This is the onboard LED ? Turns out this is also the SPI1 clock.  niiiiice.
 
+  //GPIO pin for controlling 5v booster, off at setup, on during burst
+  pinMode(GPIO_PIN_3, OUTPUT); // setup a GPIO pin
+  GPIOpinOff(GPIO_PIN_3); // disable till used
+
   // pinMode(PA4, INPUT_PULLDOWN); // mosfet for battery measurement - should be OUTPUT ??
 
   // redundant?
@@ -132,7 +136,7 @@ void setupHardwarePins()
 void blinkTest()
 {
   //Logger::instance()->writeDebugMessage(F("blink test:"));
-  //blink(10,250);
+  blink(10,250);
 }
 
 void initializeFilesystem()
@@ -213,6 +217,7 @@ void allocateMeasurementValuesMemory()
 void prepareForTriggeredMeasurement()
 {
   burstCount = 0;
+  burstLoopCount = 0;
 }
 
 void prepareForUserInteraction()
@@ -231,6 +236,11 @@ void prepareForUserInteraction()
 void setNotBursting()
 {
   burstCount = burstLength; // Set to not bursting
+}
+
+void setNotBurstLooping()
+{
+  burstLoopCount = burstLoops; // Set to not burstlooping
 }
 
 void measureSensorValues()
@@ -332,12 +342,26 @@ int measureMethaneSensorValues() {
 bool checkBursting()
 {
   bool bursting = false;
+  
   if (burstCount < burstLength)
   {
     Monitor::instance()->writeDebugMessage(F("Bursting"));
     bursting = true;
   }
   return bursting;
+}
+
+bool checkBurstLoop()
+{
+  bool burstLooping = false;
+  if (burstLoopCount < burstLoops-1)
+  {
+    Monitor::instance()->writeDebugMessage(F("BurstLooping"));
+    burstLooping = true;
+  }
+  else
+    Serial2.println("not burst looping");
+  return burstLooping;
 }
 
 bool checkDebugLoop()
@@ -429,13 +453,12 @@ void stopAndAwaitTrigger()
   clearManualWakeInterrupt();
   setNextAlarmInternalRTC(interval); 
 
-
+  GPIOpinOff(GPIO_PIN_3); // turn off 5v boost converter
   powerDownSwitchableComponents();
   filesystem->closeFileSystem(); // close file, filesystem
   disableSwitchedPower();
 
   awakenedByUser = false; // Don't go into sleep mode with any interrupt state
-
 
   componentsStopMode();
 
@@ -785,6 +808,15 @@ void trackBurst(bool bursting)
   }
 }
 
+void trackBurstLoop(bool burstLooping)
+{
+  if (burstLooping && burstCount == burstLength)
+  {
+    burstLoopCount = burstLoopCount + 1;
+    burstCount = 0;
+  }
+}
+
 // displays relevant readings based on controlFlag
 void monitorConfiguration()
 {
@@ -862,6 +894,10 @@ void monitorValues()
   //sprintf(valuesBuffer, "burstcount = %i current millis = %i\n", burstCount, (int)millis());
   //Monitor::instance()->writeDebugMessage(F(valuesBuffer));
 
+  printToBLE(valuesBuffer);
+
+  sprintf(valuesBuffer, ">METHANE_VALUES: %s, %s, %s, %s<", values[22], values[23], values[24], values[25]);
+  Monitor::instance()->writeDebugMessage(F(valuesBuffer));
   printToBLE(valuesBuffer);
 }
 

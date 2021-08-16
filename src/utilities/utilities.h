@@ -14,5 +14,9 @@ void printDateTime(HardwareSerial &serial, DateTime now);
 
 void blink(int times, int duration);
 void printDS3231Time();
+void printNVICStatus();
+
+//void pinBlink(uint8 pin, int times, int duration);
+void warmup(int minutes);
 
 #endif

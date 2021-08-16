@@ -25,3 +25,9 @@
 
 #define ONBOARD_LED_PIN PA5
 
+//#define GPIO_PIN_1 PC15 // does not work, but not sure why
+//#define GPIO_PIN_2 PA13 // does not work, but not sure why
+#define GPIO_PIN_3 PC12 // this one works, is CN7 3
+
+void GPIOpinOff(uint8 pin);
+void GPIOpinOn(uint8 pin);

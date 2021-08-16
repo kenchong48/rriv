@@ -1,6 +1,7 @@
 #include "utilities.h"
 #include "system/monitor.h"
 #include "system/clock.h"
+#include "system/watchdog.h"
 
 // For F103RM convienience in this file
 #define Serial Serial2
@@ -85,6 +86,21 @@ void blink(int times, int duration)
   }
 }
 
+/*void pinBlink(uint8 pin, int times, int duration)
+{
+  pinMode(pin, OUTPUT);
+  for (int i = times; i > 0; i--)
+  {
+    Serial2.print("blink:");
+    Serial2.println(i);
+    Serial2.flush();
+    digitalWrite(pin, HIGH);
+    delay(duration);
+    digitalWrite(pin, LOW);
+    delay(duration);
+  }
+}*/
+
 void printDS3231Time()
 {
   char testTime[11]; // timestamp responses
@@ -94,9 +110,16 @@ void printDS3231Time()
   Serial2.flush();
 }
 
-void printNVICStatus(){
+void printNVICStatus()
+{
   char  message[100];
   sprintf(message, "1: NVIC_BASE->ISPR\n%" PRIu32"\n%" PRIu32"\n%" PRIu32, NVIC_BASE->ISPR[0], NVIC_BASE->ISPR[1], NVIC_BASE->ISPR[2]);
   Monitor::instance()->writeSerialMessage(F(message));
+}
 
+void warmup(int minutes) //pause watchdog to warmup sensors, is this safe?
+{
+  pauseCustomWatchDog();
+  delay(minutes*60*1000); // convert to milliseconds
+  resumeCustomWatchDog();
 }

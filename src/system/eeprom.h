@@ -24,7 +24,15 @@
  * 950-999 Sensor 10 Calibration
 */
 
-#define EEPROM_I2C_ADDRESS 0x50 // this is weird
+#define EEPROM_I2C_ADDRESS 0x50
+// #define EEPROM_I2C_ADDRESS_00 0x50 // config files
+// #define EEPROM_I2C_ADDRESS_01 0x51
+// #define EEPROM_I2C_ADDRESS_02 0x52
+// #define EEPROM_I2C_ADDRESS_03 0x53 // sensor blocks x2 ea
+// #define EEPROM_I2C_ADDRESS_04 0x54
+// #define EEPROM_I2C_ADDRESS_05 0x55
+// #define EEPROM_I2C_ADDRESS_06 0x56
+// #define EEPROM_I2C_ADDRESS_07 0x57
 
 #define EEPROM_RESET_VALUE 255 // max value of a byte
 

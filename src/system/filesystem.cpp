@@ -267,7 +267,8 @@ void WaterBear_FileSystem::printCurrentDirListing()
 
 void WaterBear_FileSystem::closeFileSystem()
 {
-  Serial2.print(F(">close filesystem<"));
+  //does this actually work? - 07/22/21
+  Serial2.println(F(">close filesystem<"));
   //this->logfile.sync();
   this->logfile.close(); // syncs then closes
   //this->sd.end // doesn't exist

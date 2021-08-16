@@ -9,6 +9,7 @@
 #include "system/watchdog.h"
 #include "sensors/atlas_rgb.h"
 #include "utilities/qos.h"
+#include "system/hardware.h"
 
 // Setup and Loop
 
@@ -48,7 +49,6 @@ void setup(void)
   // digitalWrite(PA4, LOW); // turn on the battery measurement
 
   //blinkTest();
-  
 
   // Set up the internal RTC
   RCC_BASE->APB1ENR |= RCC_APB1ENR_PWREN;
@@ -79,25 +79,23 @@ void setup(void)
   readUniqueId(uuid);
 
   setNotBursting(); // prevents bursting during first loop
+  setNotBurstLooping(); // prevent bursting during furst loop
 
   /* We're ready to go! */
   Monitor::instance()->writeDebugMessage(F("done with setup"));
   Serial2.flush();
 
-  setupSensors();
+  //setupSensors();
   Monitor::instance()->writeDebugMessage(F("done with sensor setup"));
   Serial2.flush();
-
+  
   print_debug_status(); 
 }
-
-
-
 
 /* main run loop order of operation: */
 void loop(void)
 {
-
+  
   startCustomWatchDog();
   printWatchDogStatus();
 
@@ -106,13 +104,25 @@ void loop(void)
   // AtlasRGB::instance()->takeMeasurement(data);
   // free(data);
  
-
   checkMemory();
 
   // allocate and free the ram to test if there is enough?
   //nvic_sys_reset - what does this do?
+  
+  Serial2.print("burstLoopCount= ");
+  Serial2.print(burstLoopCount);
+  Serial2.print(" burstCount= ");
+  Serial2.println(burstCount);
+  Serial2.flush();
 
+  bool burstLooping = checkBurstLoop();
   bool bursting = checkBursting();
+  /*if (!bursting && burstLooping)
+  {
+    Serial2.println("BURST LOOPING SAYS BURSTING");
+    Serial2.flush();
+    bursting = burstLooping;
+  }*/
   bool debugLoop = checkDebugLoop();
   bool awakeForUserInteraction = checkAwakeForUserInteraction(debugLoop);
   bool takeMeasurement = checkTakeMeasurement(bursting, awakeForUserInteraction);
@@ -147,8 +157,17 @@ void loop(void)
 
   if (takeMeasurement)
   {
+    digitalWrite(GPIO_PIN_3, HIGH);
+    if (burstLooping)
+    {
+      Serial2.print("delay (min):");
+      Serial2.println(burstDelay);
+      Serial2.flush();
+      warmup(burstDelay);
+    }
     takeNewMeasurement();
     trackBurst(bursting);
+    trackBurstLoop(burstLooping);
     if (DEBUG_MEASUREMENTS)
     {
       monitorValues();

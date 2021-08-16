@@ -7,7 +7,7 @@ void setupEC_OEM(TwoWire *wire)
 {
 
   Monitor::instance()->writeDebugMessage(F("EC I2C setup"));
-  Monitor::instance()->writeDebugMessage(F("Setting up board"));
+  Monitor::instance()->writeDebugMessage(F("Setting up EC OEM board"));
 
   oem_ec = new EC_OEM(wire, NONE_INT, ec_i2c_id);
   bool awoke = oem_ec->wakeUp();
@@ -17,6 +17,7 @@ void setupEC_OEM(TwoWire *wire)
           oem_ec->getStoredAddr(), oem_ec->getDeviceType(), oem_ec->getFirmwareVersion(), awoke, oem_ec->isHibernate());
   Monitor::instance()->writeDebugMessage(message);
 
+  /*
   oem_ec->singleReading();
   struct param_OEM_EC parameter;
   parameter = oem_ec->getAllParam();
@@ -25,6 +26,7 @@ void setupEC_OEM(TwoWire *wire)
   sprintf(message, "salinity= %f\nconductivity= %f\ntds= %f\nSalinity stable = %s",
           parameter.salinity, parameter.conductivity, parameter.tds, (oem_ec->isSalinityStable() ? "yes" : "no"));
   Monitor::instance()->writeDebugMessage(message);
+  */
 
   oem_ec->setLedOn(true);
   //oem_ec->setLedOn(false);
