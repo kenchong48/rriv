@@ -9,10 +9,10 @@
 
 char version[5] = "v2.0";
 
-short interval = 50;     // minutes between loggings when not in short sleep
+short interval = 1;     // minutes between loggings when not in short sleep
 short burstLength = 10; // how many readings in a burst
-short burstDelay = 1; // minutes to delay at the start of each burstLoop
-short burstLoops = 10; // how many iterations of bursts
+short burstDelay = 0; // minutes to delay at the start of each burstLoop
+short burstLoops = 1; // how many iterations of bursts
 
 short fieldCount = 26; // number of fields to be logged to SDcard file
 // Pin Mappings for Nucleo Board
@@ -275,9 +275,14 @@ void measureSensorValues()
   static uint32 offsetMillis;
   if (burstCount == 0)
   {
-    Monitor::instance()->writeDebugMessage(F("setting base time"));
-    currentEpoch = timestamp();
-    offsetMillis = millis();
+    char timeBuffer[70];
+
+    sprintf(timeBuffer,"SETTING BASE TIME:\nEPOCH=%s\nmillis=%s", 
+      currentEpoch = timestamp(), offsetMillis = millis());
+    Monitor::instance()->writeDebugMessage(F(timeBuffer));
+    //Monitor::instance()->writeDebugMessage(F("SETTING BASE TIME"));
+    //currentEpoch = timestamp();
+    //offsetMillis = millis();
   }
   /*else if (!currentEpoch && !offsetMillis)
   {

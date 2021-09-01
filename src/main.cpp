@@ -79,7 +79,7 @@ void setup(void)
   readUniqueId(uuid);
 
   setNotBursting(); // prevents bursting during first loop
-  setNotBurstLooping(); // prevent bursting during furst loop
+  setNotBurstLooping(); // prevent bursting during first loop
 
   /* We're ready to go! */
   Monitor::instance()->writeDebugMessage(F("done with setup"));
@@ -108,21 +108,13 @@ void loop(void)
 
   // allocate and free the ram to test if there is enough?
   //nvic_sys_reset - what does this do?
-  
-  Serial2.print("burstLoopCount= ");
-  Serial2.print(burstLoopCount);
-  Serial2.print(" burstCount= ");
-  Serial2.println(burstCount);
-  Serial2.flush();
+  char debugBuffer[100];
+  sprintf(debugBuffer, "burstLoopCount=%s, burstCount=%s, timestamp=%s",
+    burstLoopCount,burstCount,timestamp());
+  Monitor::instance()->writeDebugMessage(F(debugBuffer));
 
   bool burstLooping = checkBurstLoop();
   bool bursting = checkBursting();
-  /*if (!bursting && burstLooping)
-  {
-    Serial2.println("BURST LOOPING SAYS BURSTING");
-    Serial2.flush();
-    bursting = burstLooping;
-  }*/
   bool debugLoop = checkDebugLoop();
   bool awakeForUserInteraction = checkAwakeForUserInteraction(debugLoop);
   bool takeMeasurement = checkTakeMeasurement(bursting, awakeForUserInteraction);
