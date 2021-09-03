@@ -95,7 +95,6 @@ void setup(void)
 /* main run loop order of operation: */
 void loop(void)
 {
-  
   startCustomWatchDog();
   printWatchDogStatus();
 
@@ -109,8 +108,7 @@ void loop(void)
   // allocate and free the ram to test if there is enough?
   //nvic_sys_reset - what does this do?
   char debugBuffer[100];
-  sprintf(debugBuffer, "burstLoopCount=%s, burstCount=%s, timestamp=%s",
-    burstLoopCount,burstCount,timestamp());
+  sprintf(debugBuffer, "burstLoopCount=%d, burstCount=%d, timestamp=%d", burstLoopCount,burstCount, (int)timestamp());
   Monitor::instance()->writeDebugMessage(F(debugBuffer));
 
   bool burstLooping = checkBurstLoop();
@@ -150,7 +148,7 @@ void loop(void)
   if (takeMeasurement)
   {
     digitalWrite(GPIO_PIN_3, HIGH);
-    if (burstLooping)
+    if (burstLooping && burstCount == 0) // delay once at the start of each new burst
     {
       Serial2.print("delay (min):");
       Serial2.println(burstDelay);

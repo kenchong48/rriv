@@ -8,11 +8,11 @@
 // Settings
 
 char version[5] = "v2.0";
-
+// 50:10:1:10
 short interval = 1;     // minutes between loggings when not in short sleep
-short burstLength = 10; // how many readings in a burst
-short burstDelay = 0; // minutes to delay at the start of each burstLoop
-short burstLoops = 1; // how many iterations of bursts
+short burstLength = 3; // how many readings in a burst
+short burstDelay = 1; // minutes to delay at the start of each burstLoop
+short burstLoops = 2; // how many iterations of bursts
 
 short fieldCount = 26; // number of fields to be logged to SDcard file
 // Pin Mappings for Nucleo Board
@@ -38,6 +38,8 @@ bool tempCalMode = false;
 bool tempCalibrated = false;
 short controlFlag = 0;
 
+//sensor config bools:
+bool figMethane = true;
 
 void enableI2C1()
 {
@@ -277,7 +279,7 @@ void measureSensorValues()
   {
     char timeBuffer[70];
 
-    sprintf(timeBuffer,"SETTING BASE TIME:\nEPOCH=%s\nmillis=%s", 
+    sprintf(timeBuffer,"SETTING BASE TIME: EPOCH=%d millis=%f", \
       currentEpoch = timestamp(), offsetMillis = millis());
     Monitor::instance()->writeDebugMessage(F(timeBuffer));
     //Monitor::instance()->writeDebugMessage(F("SETTING BASE TIME"));
@@ -774,9 +776,14 @@ void takeNewMeasurement()
   {
     Monitor::instance()->writeDebugMessage(F("Taking new measurement"));
   }
+  Serial2.println("stuck at A");
   measureSensorValues();
-  measureMethaneSensorValues();
-
+  Serial2.println("stuck at B");
+  if (figMethane)
+  {
+    measureMethaneSensorValues();
+  }
+  Serial2.println("stuck at C");
   // OEM EC
   float ecValue = -1;
   if(USE_EC_OEM){
@@ -786,6 +793,7 @@ void takeNewMeasurement()
       Monitor::instance()->writeDebugMessage(F("New EC data not available"));
     }
   }
+  Serial2.println("stuck at D");
 
   //Serial2.print(F("Got EC value: "));
   //Serial2.print(ecValue);
