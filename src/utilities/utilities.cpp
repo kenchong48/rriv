@@ -120,8 +120,8 @@ void printNVICStatus()
 void warmup(int minutes) //pause watchdog to warmup sensors, is this safe?
 {
   pauseCustomWatchDog();
-  Serial2.println("500ms delay");
-  delay(500);
-  //delay(minutes*60*1000); // convert to milliseconds
+  //Serial2.println("500ms delay");
+  //delay(500);
+  delay(minutes*60*1000); // convert to milliseconds
   resumeCustomWatchDog();
 }

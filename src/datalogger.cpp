@@ -8,11 +8,20 @@
 // Settings
 
 char version[5] = "v2.0";
-// 50:10:1:10
+//methane current test: 50:10:1:10
+
+short interval = 50;     // minutes between loggings when not in short sleep
+short burstLength = 10; // how many readings in a burst
+short burstDelay = 1; // minutes to delay at the start of each burstLoop
+short burstLoops = 10; // how many iterations of bursts
+
+//bench work settings:
+/*
 short interval = 1;     // minutes between loggings when not in short sleep
 short burstLength = 3; // how many readings in a burst
-short burstDelay = 1; // minutes to delay at the start of each burstLoop
+short burstDelay = 0; // minutes to delay at the start of each burstLoop
 short burstLoops = 2; // how many iterations of bursts
+*/
 
 short fieldCount = 26; // number of fields to be logged to SDcard file
 // Pin Mappings for Nucleo Board
@@ -776,14 +785,11 @@ void takeNewMeasurement()
   {
     Monitor::instance()->writeDebugMessage(F("Taking new measurement"));
   }
-  Serial2.println("stuck at A");
   measureSensorValues();
-  Serial2.println("stuck at B");
   if (figMethane)
   {
     measureMethaneSensorValues();
   }
-  Serial2.println("stuck at C");
   // OEM EC
   float ecValue = -1;
   if(USE_EC_OEM){
