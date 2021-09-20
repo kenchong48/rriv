@@ -9,19 +9,18 @@
 
 char version[5] = "v2.0";
 //methane current test: 50:10:1:10
-
+/*
 short interval = 50;     // minutes between loggings when not in short sleep
 short burstLength = 10; // how many readings in a burst
 short burstDelay = 1; // minutes to delay at the start of each burstLoop
 short burstLoops = 10; // how many iterations of bursts
-
+*/
 //bench work settings:
-/*
+
 short interval = 1;     // minutes between loggings when not in short sleep
 short burstLength = 3; // how many readings in a burst
 short burstDelay = 0; // minutes to delay at the start of each burstLoop
 short burstLoops = 2; // how many iterations of bursts
-*/
 
 short fieldCount = 26; // number of fields to be logged to SDcard file
 // Pin Mappings for Nucleo Board
@@ -212,17 +211,16 @@ void allocateMeasurementValuesMemory()
   sprintf(values[20], "%10d", 0);
   values[21] = (char *)malloc(sizeof(char) * 31); // user serial notes input
   sprintf(values[21], "%30d", 0);
+
   // Methane sensor fields - 4 readings in V and mV
-
-  values[22] = (char *)malloc(sizeof(int));
-  sprintf(values[22], "%d", 0);
-  values[23] = (char *)malloc(sizeof(float));
-  sprintf(values[23], "%f", 0);
-  values[24] = (char *)malloc(sizeof(int));
-  sprintf(values[24], "%d", 0);
-  values[25] = (char *)malloc(sizeof(float));
-  sprintf(values[25], "%f", 0);
-
+  values[22] = (char *)malloc(sizeof(char) * 5); // Vout.V
+  sprintf(values[22], "%4d", 0);
+  values[23] = (char *)malloc(sizeof(char) * 12); // Vref.mv float?
+  sprintf(values[23], "%7.3f", (double)0);
+  values[24] = (char *)malloc(sizeof(char) * 5); // Vref.V
+  sprintf(values[24], "%4d", 0);
+  values[25] = (char *)malloc(sizeof(char) * 12); //Vref.mv float?
+  sprintf(values[25], "%7.3f", (double)0);
 }
 
 void prepareForTriggeredMeasurement()
@@ -353,6 +351,7 @@ int measureMethaneSensorValues() {
   sprintf(values[23], "%f", CH4smV);
   sprintf(values[24], "%d", CH4r);
   sprintf(values[25], "%f", CH4rmV);
+  return 1;
 }
 
 bool checkBursting()
@@ -426,6 +425,22 @@ bool checkAwakeForUserInteraction(bool debugLoop)
     awakeForUserInteraction = debugLoop;
   }
   return awakeForUserInteraction;
+}
+
+bool checkFirstBurst(bool bursting, bool awakeForUserInteraction)
+{
+  bool firstBurst = false;
+  if (bursting && burstCount == 0 && burstLoopCount == 0)
+  {
+    firstBurst = true;
+  }
+  else if (awakeForUserInteraction && burstCount == burstLength && burstLoopCount == burstLoops)
+  {
+    firstBurst = true;
+    burstCount = 0;
+    burstLoopCount = 0;
+  }
+  return firstBurst;
 }
 
 bool checkTakeMeasurement(bool bursting, bool awakeForUserInteraction)
@@ -781,6 +796,7 @@ float calculateTemperature()
 
 void takeNewMeasurement()
 {
+  
   if (DEBUG_MEASUREMENTS)
   {
     Monitor::instance()->writeDebugMessage(F("Taking new measurement"));
@@ -799,7 +815,6 @@ void takeNewMeasurement()
       Monitor::instance()->writeDebugMessage(F("New EC data not available"));
     }
   }
-  Serial2.println("stuck at D");
 
   //Serial2.print(F("Got EC value: "));
   //Serial2.print(ecValue);

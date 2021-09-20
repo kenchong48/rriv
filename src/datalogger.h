@@ -44,6 +44,8 @@ extern bool tempCalMode;
 // extern AtlasRGB rgbSensor;
 //extern bool thermistorCalibrated;
 
+extern bool firstBurst; //keep track of the first burst for timestamping purposes
+
 void enableI2C1();
 
 void enableI2C2();
@@ -75,6 +77,8 @@ void measureSensorValues();
 bool checkBursting();
 
 bool checkBurstLoop();
+
+bool checkFirstBurst(bool bursting, bool awakeForUserInteraction);
 
 bool checkDebugLoop();
 
