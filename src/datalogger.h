@@ -44,6 +44,7 @@ extern bool tempCalMode;
 // extern AtlasRGB rgbSensor;
 //extern bool thermistorCalibrated;
 
+extern bool figMethane; // whether methane sensor is to be used or not
 extern bool firstBurst; //keep track of the first burst for timestamping purposes
 
 void enableI2C1();

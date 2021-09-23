@@ -36,12 +36,12 @@ void WaterBear_FileSystem::initializeSDCard(){
 
 
 void WaterBear_FileSystem::writeLog(char **values, short fieldCount){
-  Serial2.println("WRITELOG:");
+  //Serial2.println("WRITELOG:");
   for(int i=0; i<fieldCount; i++)
   {
-    Serial2.print(values[i]);
+    /*Serial2.print(values[i]);
     Serial2.print(",");
-    Serial2.flush();
+    Serial2.flush();*/
     this->logfile.print(values[i]);
     if(i+1 < fieldCount)
     {

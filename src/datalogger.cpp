@@ -18,9 +18,9 @@ short burstLoops = 10; // how many iterations of bursts
 //bench work settings:
 
 short interval = 1;     // minutes between loggings when not in short sleep
-short burstLength = 3; // how many readings in a burst
-short burstDelay = 0; // minutes to delay at the start of each burstLoop
-short burstLoops = 2; // how many iterations of bursts
+short burstLength = 4; // how many readings in a burst
+short burstDelay = 1; // minutes to delay at the start of each burstLoop
+short burstLoops = 3; // how many iterations of bursts
 
 short fieldCount = 26; // number of fields to be logged to SDcard file
 // Pin Mappings for Nucleo Board
@@ -802,7 +802,7 @@ void takeNewMeasurement()
     Monitor::instance()->writeDebugMessage(F("Taking new measurement"));
   }
   measureSensorValues();
-  if (figMethane)
+  if (figMethane == true)
   {
     measureMethaneSensorValues();
   }

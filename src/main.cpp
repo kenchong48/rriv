@@ -146,8 +146,13 @@ void loop(void)
   }
 
   if (takeMeasurement)
-  {
-    digitalWrite(GPIO_PIN_3, HIGH);
+  { 
+    if (figMethane == true)
+    {
+      Serial2.println("turning on 5v boost");
+      Serial2.flush();
+      digitalWrite(GPIO_PIN_3, HIGH);
+    }
     checkFirstBurst(bursting, awakeForUserInteraction);
     if (burstLooping && burstCount == 0) // delay once at the start of each new burst
     {
