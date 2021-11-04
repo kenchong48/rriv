@@ -15,6 +15,7 @@
 #include "system/low_power.h"
 #include "system/monitor.h"
 #include "system/switched_power.h"
+#include "system/adc.h"
 
 #include <sensors/atlas_oem.h>
 
@@ -27,9 +28,11 @@ extern short burstLoops; // how many iterations of bursts
 
 extern short fieldCount; // number of fields to be logged to SDcard file
 
+
 // State
 extern WaterBear_FileSystem *filesystem;
 extern unsigned char uuid[UUID_LENGTH];
+extern char uuidString[25]; // 2 * UUID_LENGTH + 1
 extern char **values;
 
 extern unsigned long lastMillis;
@@ -46,6 +49,8 @@ extern bool tempCalMode;
 
 extern bool figMethane; // whether methane sensor is to be used or not
 extern bool firstBurst; //keep track of the first burst for timestamping purposes
+
+extern AD7091R * externalADC;
 
 void enableI2C1();
 

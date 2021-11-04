@@ -13,40 +13,42 @@
 
 // Setup and Loop
 
-void setupSensors(){
+// void setupSensors(){
 
-  // read sensors types from EEPROM
-  // malloc configuration structs
-  // read configuration structs from EEPROM for each sensor type
-  // run setup for each sensor
+//   // read sensors types from EEPROM
+//   // malloc configuration structs
+//   // read configuration structs from EEPROM for each sensor type
+//   // run setup for each sensor
 
   
-  // Setup RGB Sensor
-  //AtlasRGB::instance()->setup(&WireTwo);
+//   // Setup RGB Sensor
+//   AtlasRGB::instance()->setup(&WireTwo);
 
+// }
+
+void copyBytesToRegister(byte * registerPtr, byte msb, byte lsb){
+  memcpy( registerPtr + 1, &msb, 1);
+  memcpy( registerPtr, &lsb, 1);
 }
+
 
 void setup(void)
 {
   startSerial2();
 
   startCustomWatchDog();
-  
+  printWatchDogStatus();
+
+
   // disable unused components and hardware pins //
   componentsAlwaysOff();
   //hardwarePinsAlwaysOff(); // TODO are we turning off I2C pins still, which is wrong
 
   setupSwitchedPower();
 
-  //Serial2.println("hello");
   enableSwitchedPower();
 
   setupHardwarePins();
-  //Serial2.println("hello");
-  //Serial2.flush();
-
-  //Serial2.println(atlasRGBSensor.get_name());
-  // digitalWrite(PA4, LOW); // turn on the battery measurement
 
   //blinkTest();
 
@@ -54,9 +56,7 @@ void setup(void)
   RCC_BASE->APB1ENR |= RCC_APB1ENR_PWREN;
   RCC_BASE->APB1ENR |= RCC_APB1ENR_BKPEN;
   PWR_BASE->CR |= PWR_CR_DBP; // Disable backup domain write protection, so we can write
-  
 
-  // delay(20000);
 
   allocateMeasurementValuesMemory();
 
@@ -64,7 +64,7 @@ void setup(void)
 
   powerUpSwitchableComponents();
 
-   // Don't respond to interrupts during setup
+  // Don't respond to interrupts during setup
   disableManualWakeInterrupt();
   clearManualWakeInterrupt();
 
@@ -76,6 +76,12 @@ void setup(void)
   //initBLE();
 
   readUniqueId(uuid);
+  uuidString[2 * UUID_LENGTH] = '\0';
+  for (short i = 0; i < UUID_LENGTH; i++)
+  {
+    sprintf(&uuidString[2 * i], "%02X", (byte)uuid[i]);
+  }
+  Serial2.println(uuidString);
 
   setNotBursting(); // prevents bursting during first loop
   setNotBurstLooping(); // prevent bursting during first loop
@@ -84,11 +90,14 @@ void setup(void)
   Monitor::instance()->writeDebugMessage(F("done with setup"));
   Serial2.flush();
 
-  //setupSensors();
-  Monitor::instance()->writeDebugMessage(F("done with sensor setup"));
-  Serial2.flush();
-  
-  print_debug_status(); 
+  // setupSensors();
+  // Monitor::instance()->writeDebugMessage(F("done with sensor setup"));
+  // Serial2.flush();
+
+
+  disableCustomWatchDog();
+  print_debug_status(); // delays for 10s with user message, don't want watchdog to trigger
+  startCustomWatchDog();
 }
 
 /* main run loop order of operation: */
