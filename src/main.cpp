@@ -63,7 +63,6 @@ void setup(void)
   setupManualWakeInterrupts();
 
   powerUpSwitchableComponents();
-  delay(2000);
 
    // Don't respond to interrupts during setup
   disableManualWakeInterrupt();
@@ -159,7 +158,10 @@ void loop(void)
       Serial2.print("delay (min):");
       Serial2.println(burstDelay);
       Serial2.flush();
-      warmup(burstDelay);
+      if (figMethane == true)
+      {
+        warmup(burstDelay);
+      }
     }
     takeNewMeasurement();
     trackBurst(bursting);

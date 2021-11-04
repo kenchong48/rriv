@@ -47,7 +47,7 @@ bool tempCalibrated = false;
 short controlFlag = 0;
 
 //sensor config bools:
-bool figMethane = true;
+bool figMethane = false;
 
 void enableI2C1()
 {
@@ -55,7 +55,7 @@ void enableI2C1()
   i2c_master_enable(I2C1, 0, 0);
   Monitor::instance()->writeDebugMessage(F("Enabled I2C1"));
 
-  delay(1000);
+  delay(2000);
   // i2c_bus_reset(I2C1); // hangs here if this is called
   // Monitor::instance()->writeDebugMessage(F("Reset I2C1"));
 
@@ -73,6 +73,7 @@ void enableI2C2()
   i2c_master_enable(I2C2, 0, 0);
   Monitor::instance()->writeDebugMessage(F("Enabled I2C2"));
 
+  delay(2000);
   //i2c_bus_reset(I2C2); // hang if this is called
   WireTwo.begin();
   delay(1000);
@@ -87,6 +88,7 @@ void enableI2C2()
 void powerUpSwitchableComponents()  
 {
   cycleSwitchablePower();
+  delay(2000);
   enableI2C1();
   if(USE_EC_OEM){
     enableI2C2();
