@@ -55,8 +55,9 @@ bool tempCalMode = false;
 bool tempCalibrated = false;
 short controlFlag = 0;
 
-//sensor config bools:
-bool figMethane = false;
+//config bools (true if present, false if not present):
+bool extADC = true; // external ADC
+bool figMethane = false; // figaro methane sensor
 
 
 void enableI2C1()
@@ -73,8 +74,9 @@ void enableI2C1()
   delay(1000);
 
   Monitor::instance()->writeDebugMessage(F("Began TwoWire 1"));
-  
-  scanIC2(&Wire);
+  if (extADC == false){
+    scanIC2(&Wire);
+  }
 }
 
 void enableI2C2()
@@ -102,21 +104,22 @@ void powerUpSwitchableComponents()
   delay(500);
   enableI2C1();
 
-  delay(1); // delay > 50ns before applying ADC reset
-  digitalWrite(PC5,LOW); // reset is active low
-  delay(1); // delay > 10ns after starting ADC reset
-  digitalWrite(PC5,HIGH);
-  delay(100); // Wait for ADC to start up
-  
-  Monitor::instance()->writeDebugMessage(F("Set up external ADC"));
-  externalADC = new AD7091R();
-  externalADC->configure();
-  externalADC->enableChannel(0);
-  externalADC->enableChannel(1);
-  externalADC->enableChannel(2);
-  externalADC->enableChannel(3);
+  if (extADC == true){
+    delay(1); // delay > 50ns before applying ADC reset
+    digitalWrite(PC5,LOW); // reset is active low
+    delay(1); // delay > 10ns after starting ADC reset
+    digitalWrite(PC5,HIGH);
+    delay(100); // Wait for ADC to start up
+    scanIC2(&Wire); // report if ADC found and where, in case wrong address
 
-  scanIC2(&Wire);
+    Monitor::instance()->writeDebugMessage(F("Set up external ADC"));
+    externalADC = new AD7091R();
+    externalADC->configure();
+    externalADC->enableChannel(0);
+    externalADC->enableChannel(1);
+    externalADC->enableChannel(2);
+    externalADC->enableChannel(3);
+  }
 
   if(USE_EC_OEM){
     enableI2C2();

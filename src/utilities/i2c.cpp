@@ -63,7 +63,7 @@ void i2cSendTransmission(byte i2cAddress, byte registerAddress, const void * dat
 
 void scanIC2(TwoWire *wire)
 {
-  Serial.println("Scanning...");
+  Serial2.println("Scanning...");
   byte error, address;
   int nDevices;
   nDevices = 0;
@@ -75,29 +75,29 @@ void scanIC2(TwoWire *wire)
     wire->beginTransmission(address);
     error = wire->endTransmission(); 
     if(address == 0x2F){
-      Serial.println(address, HEX);
-      Serial.println(error);
+      Serial2.println(address, HEX);
+      Serial2.println(error);
     }
 
     if (error == 0)
     {
-      Serial.print("I2C2: I2C device found at address 0x");
+      Serial2.print("I2C2: I2C device found at address 0x");
       if (address < 16)
-        Serial.print("0");
-      Serial.println(address, HEX);
+        Serial2.print("0");
+      Serial2.println(address, HEX);
 
       nDevices++;
     }
     else if (error == 4)
     {
-      Serial.print("Unknown error at address 0x");
+      Serial2.print("Unknown error at address 0x");
       if (address < 16)
-        Serial.print("0");
-      Serial.println(address, HEX);
+        Serial2.print("0");
+      Serial2.println(address, HEX);
     }
   }
   if (nDevices == 0)
-    Serial.println("No I2C devices found");
+    Serial2.println("No I2C devices found");
   else
     Serial.println("done");
 }

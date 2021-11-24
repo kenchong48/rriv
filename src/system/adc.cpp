@@ -14,6 +14,7 @@ AD7091R::AD7091R()
 
 void AD7091R::configure()
 {
+  Monitor::instance()->writeDebugMessage(F("Configuring ext ADC"));
   configuration_register configurationGet = this->readConfigurationRegister();
   this->printConfigurationRegister(configurationGet);
 
@@ -35,6 +36,7 @@ void AD7091R::configure()
   channelRegister.CH2 = 0;
   channelRegister.CH3 = 0;
   this->writeChannelRegister(channelRegister);
+  Monitor::instance()->writeDebugMessage(F("Configured ext ADC"));
 }
 
 void AD7091R::enableChannel(short channel)
@@ -53,7 +55,7 @@ void AD7091R::enableChannel(short channel)
   case 3:
     channel3Enabled = 1;
     break;
-  } 
+  }
 
   this->updateChannelRegister();
 
@@ -201,11 +203,11 @@ void AD7091R::requestBytes(byte *buffer, int length)
   // debug(debugMessage);
 
   short numBytes = Wire.requestFrom(ADC_I2C_ADDRESS, length);
-  if(numBytes != length){
-    // TODO
-    // or just rely on the watchdog
-    return false; /// add return value to requestBytes and rerun the transmission
-  }
+  // if(numBytes != length){
+  //   // TODO
+  //   // or just rely on the watchdog
+  //   return false; /// add return value to requestBytes and rerun the transmission
+  // }
   // sprintf(debugMessage, "got %i bytes", numBytes);
   // debug(debugMessage);
 

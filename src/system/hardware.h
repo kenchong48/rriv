@@ -29,5 +29,7 @@
 //#define GPIO_PIN_2 PA13 // does not work, but not sure why
 #define GPIO_PIN_3 PC12 // this one works, is CN7 3
 
+#define EXT_MOSFET_ENABLE NULL// for switched_power.cpp
+
 void GPIOpinOff(uint8 pin);
 void GPIOpinOn(uint8 pin);
