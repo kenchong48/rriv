@@ -135,6 +135,7 @@ void setupHardwarePins()
   //GPIO pin for controlling 5v booster, off at setup, on during burst
   pinMode(GPIO_PIN_3, OUTPUT); // setup a GPIO pin
   GPIOpinOff(GPIO_PIN_3); // disable till used
+  //GPIOpinOn(GPIO_PIN_3); // enable for debugging
 
   // pinMode(PA4, INPUT_PULLDOWN); // mosfet for battery measurement - should be OUTPUT ??
 
