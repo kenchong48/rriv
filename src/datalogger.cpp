@@ -11,7 +11,8 @@
 char version[5] = "v2.0";
 //methane current test: 50:10:1:10
 /*
-short interval = 50;     // minutes between loggings when not in short sleep
+short interval = 10;     // minutes between loggings when not in short 
+                         // interval between sampling initiations
 short burstLength = 10; // how many readings in a burst
 short burstDelay = 1; // minutes to delay at the start of each burstLoop
 short burstLoops = 10; // how many iterations of bursts
