@@ -56,7 +56,7 @@ bool tempCalibrated = false;
 short controlFlag = 0;
 
 //config bools (true if present, false if not present):
-bool extADC = true; // external ADC
+bool extADC = false; // external ADC
 bool figMethane = false; // figaro methane sensor
 
 
