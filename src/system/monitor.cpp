@@ -19,16 +19,28 @@
 #include "monitor.h"
 #include "utilities/utilities.h"
 
+Monitor * monitor;
 
-Monitor * monitor = new Monitor();
+Monitor::Monitor() {}
+
+// Monitor * monitor = new Monitor();
+
+// Monitor * Monitor::create(Datalogger * datalogger)
+// {
+//   monitor = new Monitor(datalogger);
+//   return monitor;
+// }
 
 // get default logger
-Monitor *Monitor::instance()
+Monitor * Monitor::instance()
 {
   return monitor;
 }
 
-Monitor::Monitor() {}
+// Monitor::Monitor(Datalogger * datalogger) 
+// {
+//   this->datalogger = datalogger;
+// }
 
 void Monitor::writeSerialMessage(const char *message)
 {
@@ -43,16 +55,30 @@ void Monitor::writeSerialMessage(const char *message)
 
 void Monitor::writeDebugMessage(const char *message)
 {
-  if (this->debugToSerial)
+  if (datalogger->settings.debugToSerial)
   {
     this->writeSerialMessage(message);
   }
 
-  if (this->debugToFile && this->filesystem != NULL)
+  if (datalogger->settings.debugToFile && this->filesystem != NULL)
   {
     this->filesystem->writeDebugMessage(message);
   }
 }
+
+// // original
+// void Monitor::writeDebugMessage(const char *message)
+// {
+//   if (this->debugToSerial)
+//   {
+//     this->writeSerialMessage(message);
+//   }
+
+//   if (this->debugToFile && this->filesystem != NULL)
+//   {
+//     this->filesystem->writeDebugMessage(message);
+//   }
+// }
 
 // void Monitor::writeDebugMessage(const int number)
 // {

@@ -20,27 +20,39 @@
 #define WATERBEAR_MONITOR
 
 #include "filesystem.h"
+#include "datalogger.h"
+
+// Forward declaration of class
+class Datalogger;
 
 class Monitor
 {
 
-public:
-    //TODO: CLI command to toggle these
-    bool debugToFile = true;
-    bool debugToSerial = true;
-    WaterBear_FileSystem * filesystem = NULL;
+    public:
+        //TODO: move to datalogger settings and add cmds to toggle
+        // bool debugToFile = false;
+        // bool debugToSerial = false;
+        WaterBear_FileSystem * filesystem = NULL;
 
-public:
-    static Monitor* instance();
+    public:
 
-    Monitor();
+        // TODO: rewrite Monitor as OOP class?
+        static Monitor * create(Datalogger * datalogger);
+        static Monitor * instance();
 
-    void writeSerialMessage(const char * message);
-    // void writeSerialMessage(const __FlashStringHelper * message);
-    void writeDebugMessage(const char * message);
-    // void writeDebugMessage(const __FlashStringHelper * message);
-    // void writeDebugMessage(int message);
-    // void writeDebugMessage(int message, int base);
+        // Monitor(Datalogger * datalogger);
+        Monitor();
+
+        void writeSerialMessage(const char * message);
+        // void writeSerialMessage(const __FlashStringHelper * message);
+        void writeDebugMessage(const char * message);
+        // void writeDebugMessage(const __FlashStringHelper * message);
+        // void writeDebugMessage(int message);
+        // void writeDebugMessage(int message, int base);
+    
+    private:
+        Datalogger * datalogger;
+
 };
 
 #endif

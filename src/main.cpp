@@ -37,7 +37,8 @@ void workspace();
 void setup(void)
 {
   startSerial2();
-  Monitor::instance()->debugToSerial = true;
+  // Monitor::instance()->debugToSerial = true;
+  datalogger->settings.debugToSerial = true;
 
   workspace();
 
@@ -69,7 +70,8 @@ void setup(void)
 
   startCustomWatchDog(); // printMCUDebugStatus delays with user message, don't want watchdog to trigger
 
-  Monitor::instance()->debugToSerial = true;
+  // Monitor::instance()->debugToSerial = false;
+  datalogger->settings.debugToSerial = false;
 
   printWelcomeMessage(dataloggerSettings);
 

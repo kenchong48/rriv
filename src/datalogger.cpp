@@ -87,9 +87,11 @@ void Datalogger::readConfiguration(datalogger_settings_type *settings)
     settings->interBurstDelay = 0;
   }
 
-  settings->debug_values = true;
-  settings->log_raw_data = true;
-  settings->debug_to_file = true;
+  // TODO: add commands to toggle these settings
+  settings->debug_values = false; // used for start and stoplogging commands
+  settings->log_raw_data = true; // write 'raw' type lines to file
+  settings->debugToSerial = true; // write debug lines to serial output
+  settings->debugToFile = true; // write debug lines to file on sdcard
 }
 
 Datalogger::Datalogger(datalogger_settings_type *settings)
@@ -124,7 +126,7 @@ Datalogger::Datalogger(datalogger_settings_type *settings)
 void Datalogger::setup()
 {
   startCustomWatchDog();
-  Monitor::instance()->debugToFile = settings.debug_to_file;
+  // Monitor::instance()->debugToFile = settings.debug_to_file;
 
   setupHardwarePins();
   setupSwitchedPower();
@@ -166,10 +168,10 @@ bool Datalogger::processReadingsCycle()
   measureSensorDuration = millis() - measureSensorDuration;
   // notify(measureSensorDuration);
 
-  if (settings.log_raw_data) // we are really talking about a burst summary
+  if (settings.log_raw_data) // we are really talking about a burst summary, individual readings in a burst
   {
     writeRawMeasurementToLogFile();
-    if(settings.debug_to_file)
+    if(settings.debugToFile)
     {
       fileSystemWriteCache->flushCache();
     }
@@ -191,7 +193,7 @@ bool Datalogger::processReadingsCycle()
   // so output burst summary
   writeSummaryMeasurementToLogFile();    
   completedBursts++;
-  if(settings.debug_to_file)
+  if(settings.debugToFile)
   {
     fileSystemWriteCache->flushCache();
   }
@@ -309,7 +311,7 @@ void Datalogger::loop()
     }
     
   }
-  else if (inMode(debugging))
+  else if (inMode(debugging)) // TODO: add explanation, take readings and write them to file at 1 per 5 seconds?
   {
     measureSensorValues(false);
     writeRawMeasurementToLogFile();
@@ -579,15 +581,15 @@ void Datalogger::writeStatusFieldsToLogFile(const char * type)
   fileSystemWriteCache->writeString(humanTimeString);
   fileSystemWriteCache->writeString((char *)","); 
 
+  // write measurement cycle number and burst number
+  sprintf(buffer,"%d,%d,", measurementCycle, completedBursts+1);
+  fileSystemWriteCache->writeString(buffer);
+
   // write out the raw battery reading
   // sprintf(buffer, "%d,", getBatteryValue()); // not working with v0.2 schematic
 
   // hardcoded to have battery into exADC port 3 along side 5v booster
   sprintf(buffer, "%d,", externalADC->getChannelValue(3)); 
-  fileSystemWriteCache->writeString(buffer);
-
-  // write measurement cycle number and burst number
-  sprintf(buffer,"%d,%d,", measurementCycle, completedBursts+1);
   fileSystemWriteCache->writeString(buffer);
 }
 
@@ -742,10 +744,11 @@ void Datalogger::setConfiguration(cJSON *config)
   storeDataloggerConfiguration();
 }
 
+// TODO: should this include all the settings, or just ones users can control?
 cJSON * Datalogger::getConfigurationJSON()
 {
   cJSON* json = cJSON_CreateObject();
-  cJSON_AddStringToObject(json, "UUID", getUUIDString());
+  // cJSON_AddStringToObject(json, "UUID", getUUIDString());
   cJSON_AddStringToObject(json, "loggerName", settings.loggerName);
   cJSON_AddNumberToObject(json, "RTCsetTime", settings.RTCsetTime);
   cJSON_AddStringToObject(json, "siteName", settings.siteName);
@@ -754,6 +757,13 @@ cJSON * Datalogger::getConfigurationJSON()
   cJSON_AddNumberToObject(json, "startUpDelay(min)", settings.startUpDelay);
   cJSON_AddNumberToObject(json, "burstNumber", settings.burstNumber);
   cJSON_AddNumberToObject(json, "interBurstDelay(min)", settings.interBurstDelay);
+  // mode is a char, no addCharToObject function
+  // cJSON_AddBoolToObject(json, "externalADCEnabled", settings.externalADCEnabled); // not user controlled
+  // cJSON_AddBoolToObject(json, "debug_values", settings.debug_values); // used for outputting sample values to serial
+  // cJSON_AddBoolToObject(json, "withold_incomplete_readings", settings.withold_incomplete_readings);
+  // cJSON_AddBoolToObject(json, "log_raw_data", settings.log_raw_data); // log raw values
+  cJSON_AddBoolToObject(json, "debugToSerial", settings.debugToSerial); // write debug lines to file
+  cJSON_AddBoolToObject(json, "debugToFile", settings.debugToFile); // write debug lines to file
   return json;
 }
 
@@ -1019,10 +1029,10 @@ void Datalogger::initializeFilesystem()
   sprintf(setupTS, "unixtime: %lld", setupTime);
   notify(setupTS);
 
-  // example with co2, dht22, and methane sensor
-  // "type,site,logger,deployment,deployed_at,uuid,time.s,time.h,battery.V,measurement,burst,dht_C,dht_RH,atlas_CO2_ppm,ch4rf_raw,ch4rf_cal,ch4_raw,ch4_cal,user_note,user_value"
+  // example with co2, dht22, and methane sensor ~181 char
+  //"type,site,logger,deployment,deployed_at,uuid,time.s,time.h,measurementCycle,burstCycle,battery.V,dht_C,dht_RH,atlas_CO2_ppm,ch4rf_raw,ch4rf_cal,ch4_raw,ch4_cal,user_note,user_value"
   char header[200]; // adjust as necessary, statusFields + csv column headers from each driver
-  const char *statusFields = "type,site,logger,deployment,deployed_at,uuid,time.s,time.h,battery.V,measurementCycle,burstCycle"; // 96 char + null
+  const char *statusFields = "type,site,logger,deployment,deployed_at,uuid,time.s,time.h,measurementCycle,burstCycle,battery.V"; // 96 char + null
   
   strcpy(header, statusFields);
   debug(header);

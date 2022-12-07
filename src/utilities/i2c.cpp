@@ -34,7 +34,7 @@ void i2cError(int transmissionCode)
       debug(F("i2c address not ack'd"));
       break;
     case ENACKTRNS:
-      debug(F("i2c transmission not ack;d"));
+      debug(F("i2c transmission not ack'd"));
       break;
     case EOTHER:
       debug(F("i2c error: other"));

@@ -121,9 +121,17 @@ void ok(){
   notify("ok");
 }
 
-void toggleTrace(int arg_cnt, char **args)
+void toggleDebugToSerial(int arg_cnt, char **args)
 {
-  Monitor::instance()->debugToSerial = !Monitor::instance()->debugToSerial;
+  // Monitor::instance()->debugToSerial = !Monitor::instance()->debugToSerial;
+  CommandInterface::instance()->_toggleDebugToSerial();
+}
+
+void toggleDebugToFile(int arg_cnt, char **args)
+{
+  // Monitor::instance()->debugToFile = !Monitor::instance()->debugToFile;
+  CommandInterface::instance()->_toggleDebugToFile();
+
 }
 
 void startLogging(int arg_cnt, char **args)
@@ -745,12 +753,13 @@ void CommandInterface::setup(){
   // cmdAdd("set-start-up-delay", setStartUpDelay);
   // cmdAdd("set-inter-burst-delay", setInterBurstDelay);
 
-  cmdAdd("calibrate", calibrate);
+  // cmdAdd("calibrate", calibrate);
   
   // cmdAdd("set-user-note", setUserNote);
   // cmdAdd("set-user-value", setUserValue);
 
-  // cmdAdd("trace", toggleTrace);
+  cmdAdd("debug-to-serial", toggleDebugToSerial);
+  cmdAdd("debug-to-file", toggleDebugToFile);
   cmdAdd("start-logging", startLogging);
   cmdAdd("stop-logging", stopLogging);
   // cmdAdd("measurement-cycle", testMeasurementCycle);

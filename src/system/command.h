@@ -120,6 +120,9 @@ class CommandInterface
     void _calibrate(int slot, char * subcommand, int arg_cnt, char ** args);
 
     void _toggleDebug();
+    void _toggleDebugToSerial();
+    void _toggleDebugToFile();
+
     void _startLogging();
     void _stopLogging();
     void _testMeasurementCycle();
