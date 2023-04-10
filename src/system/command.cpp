@@ -133,7 +133,8 @@ void startLogging(int arg_cnt, char **args)
 
 void CommandInterface::_startLogging()
 {
-  this->datalogger->settings.debug_values = true;
+  this->datalogger->settings.debug_values = true; // why?
+  // this->datalogger->settings.debug_to_file = true; // doesn't work to toggle here
   this->datalogger->startLogging();
   ok();
 }

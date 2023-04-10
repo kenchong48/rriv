@@ -87,9 +87,10 @@ void Datalogger::readConfiguration(datalogger_settings_type *settings)
     settings->interBurstDelay = 0;
   }
 
-  settings->debug_values = true;
+  // TODO: commands to toggle these
+  settings->debug_values = true; // what is this used for?
   settings->log_raw_data = true;
-  settings->debug_to_file = true;
+  settings->debug_to_file = true; // there's also debugToFile in monitor.h, this has to be true for startlogging to work
 }
 
 Datalogger::Datalogger(datalogger_settings_type *settings)
@@ -304,6 +305,7 @@ void Datalogger::loop()
           Serial2.print(F("CMD >> "));
         }
         writeRawMeasurementToLogFile();
+        fileSystemWriteCache->flushCache(); // testing
         lastInteractiveLogTime = timestamp();
       }
     }
@@ -608,7 +610,7 @@ bool Datalogger::writeRawMeasurementToLogFile()
   writeStatusFieldsToLogFile("raw");
 
   // and write out the sensor data
-  debug(F("Write data"));
+  // debug(F("Write data"));
   for (unsigned short i = 0; i < sensorCount; i++)
   {
     // get values from the sensors
