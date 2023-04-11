@@ -154,6 +154,8 @@ void Datalogger::setup()
   // debug("Loaded sensor configurations");
   initializeFilesystem();
   setUpCLI();
+
+  initializeMeasurementCycle(); // for continuous default logging
 }
 
 /*
@@ -305,7 +307,7 @@ void Datalogger::loop()
           Serial2.print(F("CMD >> "));
         }
         writeRawMeasurementToLogFile();
-        fileSystemWriteCache->flushCache(); // testing
+        fileSystemWriteCache->flushCache();
         lastInteractiveLogTime = timestamp();
       }
     }

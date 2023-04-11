@@ -144,7 +144,7 @@ private:
     char uuidString[25]; // 2 * UUID_LENGTH + 1
     mode_type mode = interactive;
     bool powerCycle = true;
-    bool interactiveModeLogging = false;
+    bool interactiveModeLogging = true; // default wake up condition
     time_t currentEpoch;
     uint32 offsetMillis;
     char loggingFolder[26];
