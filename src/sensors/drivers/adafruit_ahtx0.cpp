@@ -18,9 +18,12 @@
 
 #include "adafruit_ahtx0.h"
 #include "system/logs.h"
-#include "system/measurement_components.h"
-#include "system/eeprom.h" // TODO: ideally not included in this scope
-#include "system/clock.h"  // TODO: ideally not included in this scope
+// #include "system/measurement_components.h"
+// #include "system/eeprom.h" // TODO: ideally not included in this scope
+// #include "system/clock.h"  // TODO: ideally not included in this scope
+
+#define TEMPERATURE_VALUE_TAG "temperature"
+#define HUMIDITY_VALUE_TAG "humidity"
 
 AdaAHTX0::AdaAHTX0()
 {
@@ -53,14 +56,17 @@ void AdaAHTX0::appendDriverSpecificConfigurationJSON(cJSON * json)
   addCalibrationParametersToJSON(json);
 }
 
-
-
 void AdaAHTX0::setup()
 {
   aht = new Adafruit_AHTX0();
   if(!aht->begin(wire,1,AHTX0_I2CADDR_DEFAULT)){
     notify("aht setup fail");
   }
+}
+
+void AdaAHTX0::stop()
+{
+  delete aht;
 }
 
 bool AdaAHTX0::takeMeasurement()
@@ -84,9 +90,9 @@ bool AdaAHTX0::takeMeasurement()
   if(measurementTaken)
   {
     // notify("measurement read");
-    addValueToBurstSummaryMean("temperature", temperature);
-    addValueToBurstSummaryMean("humidity", humidity);
-    lastSuccessfulReadingMillis = millis();
+    addValueToBurstSummaryMean(TEMPERATURE_VALUE_TAG, temperature);
+    addValueToBurstSummaryMean(HUMIDITY_VALUE_TAG, humidity);
+    // lastSuccessfulReadingMillis = millis();
   }
 
   return measurementTaken;
@@ -94,9 +100,9 @@ bool AdaAHTX0::takeMeasurement()
 const char *AdaAHTX0::getSummaryDataString()
 {
   // debug("configuring AdaAHTX0 dataString");
-  // process data string for .csv
-  // TODO: just reporting the last value, not a true summary
-  sprintf(dataString, "%.2f", getBurstSummaryMean("aht"));
+  double temperatureBurstSummaryMean = getBurstSummaryMean(TEMPERATURE_VALUE_TAG);
+  double humidityBurstSummaryMean = getBurstSummaryMean(HUMIDITY_VALUE_TAG);
+  sprintf(dataString, "%0.3f,%0.3f", temperatureBurstSummaryMean, humidityBurstSummaryMean);
   return dataString;
 }
 
@@ -138,7 +144,14 @@ const char * AdaAHTX0::getRawDataString()
   sprintf(dataString, "%.2f,%.2f", temperature, humidity);
   return dataString;
 }
-uint32 AdaAHTX0::millisecondsUntilNextReadingAvailable()
+
+// uint32 AdaAHTX0::millisecondsUntilNextReadingAvailable()
+// {
+//   // why is this set to 30 seconds? 30 * 1000 = 30,000 milliseconds
+//   return (30000 - (millis() - lastSuccessfulReadingMillis)); // return min by default, a larger number in driver implementation causes correct delay
+// }
+
+uint32 AdaAHTX0::millisecondsUntilNextRequestedReading()
 {
-  return (30000 - (millis() - lastSuccessfulReadingMillis)); // return min by default, a larger number in driver implementation causes correct delay
+  return 100; // documentation says it can be read as often as you like
 }

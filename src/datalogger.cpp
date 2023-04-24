@@ -304,6 +304,7 @@ void Datalogger::loop()
           Serial2.print(F("CMD >> "));
         }
         writeRawMeasurementToLogFile();
+        fileSystemWriteCache->flushCache();
         lastInteractiveLogTime = timestamp();
       }
     }
