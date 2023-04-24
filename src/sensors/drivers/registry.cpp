@@ -12,6 +12,8 @@
 #define ATLAS_EC_OEM_SENSOR 0x0001
 #define ADAFRUIT_DHT22_SENSOR 0x0002
 #define ATLAS_CO2_SENSOR 0x0003
+
+#define ADAFRUIT_AHTX0_SENSOR 0x0007
 // Step 2: Add a #define for the next available integer code
 
 #define DRIVER_TEMPLATE 0xFFFE
@@ -28,9 +30,11 @@ void buildDriverSensorMap()
 
   // setupSensorMaps<DriverTemplate>(DRIVER_TEMPLATE, F(DRIVER_TEMPLATE_TYPE_STRING));
  
-  setupSensorMaps<AdaDHT22>(ADAFRUIT_DHT22_SENSOR, F(ADAFRUIT_DHT22_TYPE_STRING));
+  // setupSensorMaps<AdaDHT22>(ADAFRUIT_DHT22_SENSOR, F(ADAFRUIT_DHT22_TYPE_STRING));
 
   setupSensorMaps<AtlasCO2Driver>(ATLAS_CO2_SENSOR, F(ATLAS_CO2_DRIVER_TYPE_STRING)); // 4848 bytes
+
+  setupSensorMaps<AdaAHTX0>(ADAFRUIT_AHTX0_SENSOR, F(ADAFRUIT_DHTX0_TYPE_STRING));
 
   // Step 3: call setupSensorMaps with the class name, code, and type string for your sensor
   // setupSensorMaps<$CLASS_NAME>($SENSOR_CODE, F($SENSOR_STRING_NAME));
