@@ -12,6 +12,10 @@
 #define ATLAS_EC_OEM_SENSOR 0x0001
 #define ADAFRUIT_DHT22_SENSOR 0x0002
 #define ATLAS_CO2_SENSOR 0x0003
+#define GENERIC_ACTUATOR 0x0004
+#define AIR_PUMP 0x0005
+#define BME280 0x0006
+#define ADAFRUIT_AHTX0_SENSOR 0x0007
 // Step 2: Add a #define for the next available integer code
 
 #define DRIVER_TEMPLATE 0xFFFE
@@ -28,7 +32,8 @@ void buildDriverSensorMap()
 
   // setupSensorMaps<DriverTemplate>(DRIVER_TEMPLATE, F(DRIVER_TEMPLATE_TYPE_STRING));
  
-  setupSensorMaps<AdaDHT22>(ADAFRUIT_DHT22_SENSOR, F(ADAFRUIT_DHT22_TYPE_STRING));
+  // setupSensorMaps<AdaDHT22>(ADAFRUIT_DHT22_SENSOR, F(ADAFRUIT_DHT22_TYPE_STRING));
+  setupSensorMaps<AdaAHTX0>(ADAFRUIT_AHTX0_SENSOR, F(ADAFRUIT_DHTX0_TYPE_STRING));
 
   // setupSensorMaps<AtlasCO2Driver>(ATLAS_CO2_SENSOR, F(ATLAS_CO2_DRIVER_TYPE_STRING));
 
