@@ -522,6 +522,7 @@ void Datalogger::measureSensorValues(bool performingBurst)
 
   for (unsigned int i = 0; i < sensorCount; i++)
   {
+    // TODO: error checking if takeMeasurement returns false
     if (drivers[i]->takeMeasurement())
     {
       if (performingBurst)

@@ -52,6 +52,7 @@ void AdaAHTX0::configureSpecificConfigurationsFromBytes(configuration_bytes_part
 void AdaAHTX0::appendDriverSpecificConfigurationJSON(cJSON * json)
 {
   // debug("getting AdaAHTX0 json");
+  
   //driver specific config, customize
   addCalibrationParametersToJSON(json);
 }
@@ -78,12 +79,12 @@ bool AdaAHTX0::takeMeasurement()
   humidity = hum.relative_humidity;
   temperature = temp.temperature;
   if(isnan(humidity)){
-    // notify("Error reading humidity");
+    notify("Read Error: humidity");
   } else{
     measurementTaken = true;
   }
   if(isnan(temperature)){
-    // notify("Error reading temperature");
+    notify("Read Error: temperature");
   } else{
     measurementTaken = true;
   }
@@ -92,14 +93,13 @@ bool AdaAHTX0::takeMeasurement()
     // notify("measurement read");
     addValueToBurstSummaryMean(TEMPERATURE_VALUE_TAG, temperature);
     addValueToBurstSummaryMean(HUMIDITY_VALUE_TAG, humidity);
-    // lastSuccessfulReadingMillis = millis();
   }
 
   return measurementTaken;
 }
+
 const char *AdaAHTX0::getSummaryDataString()
 {
-  // debug("configuring AdaAHTX0 dataString");
   double temperatureBurstSummaryMean = getBurstSummaryMean(TEMPERATURE_VALUE_TAG);
   double humidityBurstSummaryMean = getBurstSummaryMean(HUMIDITY_VALUE_TAG);
   sprintf(dataString, "%0.3f,%0.3f", temperatureBurstSummaryMean, humidityBurstSummaryMean);
@@ -145,13 +145,7 @@ const char * AdaAHTX0::getRawDataString()
   return dataString;
 }
 
-// uint32 AdaAHTX0::millisecondsUntilNextReadingAvailable()
-// {
-//   // why is this set to 30 seconds? 30 * 1000 = 30,000 milliseconds
-//   return (30000 - (millis() - lastSuccessfulReadingMillis)); // return min by default, a larger number in driver implementation causes correct delay
-// }
-
-uint32 AdaAHTX0::millisecondsUntilNextRequestedReading()
+uint32 AdaAHTX0::millisecondsUntilNextReadingAvailable()
 {
-  return 100; // documentation says it can be read as often as you like
+  return 2000; // 1 reading per 2 seconds
 }

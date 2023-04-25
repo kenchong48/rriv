@@ -64,7 +64,7 @@ class AdaDHT22 : public GPIOProtocolSensorDriver
     void setDriverDefaults();
 
   private:
-    const char *sensorTypeString = "adafruit_dht22";
+    const char *sensorTypeString = ADAFRUIT_DHT22_TYPE_STRING;
     driver_configuration configuration;
     DHT_Unified *dht;
 
