@@ -268,39 +268,21 @@ void CommandInterface::_setWakeInterval(int size)
   ok();
 }
 
-void setBurstSize(int arg_cnt, char **args)
+void setBurstCycle(int arg_cnt, char **args)
 {
   if(arg_cnt < 2){
-    invalidArgumentsMessage(F("set-burst_size NUMBER_OF_MEASUREMENTS_IN_BURST"));
+    invalidArgumentsMessage(F("set-burst-cycle NUMBER_OF_BURSTS"));
     return;
   }
 
   // use singleton to get back into OOP context
-  int size = atoi(args[1]);
-  CommandInterface::instance()->_setBurstSize(size);
+  int cycles = atoi(args[1]);
+  CommandInterface::instance()->_setBurstCycle(cycles);
 }
 
-void CommandInterface::_setBurstSize(int size)
+void CommandInterface::_setBurstCycle(int cycles)
 {
-  this->datalogger->setBurstSize(size);
-  ok();
-}
-
-void setBurstNumber(int arg_cnt, char **args)
-{
-  if(arg_cnt < 2){
-    invalidArgumentsMessage(F("set-burst-number NUMBER_OF_BURSTS"));
-    return;
-  }
-
-  // use singleton to get back into OOP context
-  int number = atoi(args[1]);
-  CommandInterface::instance()->_setBurstNumber(number);
-}
-
-void CommandInterface::_setBurstNumber(int number)
-{
-  this->datalogger->setBurstNumber(number);
+  this->datalogger->setBurstCycle(cycles);
   ok();
 }
 
@@ -322,7 +304,7 @@ void CommandInterface::_setStartUpDelay(int number)
   ok();
 }
 
-void setInterBurstDelay(int arg_cnt, char **args)
+void setBurstInterval(int arg_cnt, char **args)
 {
   if(arg_cnt < 2){
     invalidArgumentsMessage(F("set-inter-burst-delay DELAY_BETWEEN_BURSTS_MINUTES"));
@@ -331,12 +313,12 @@ void setInterBurstDelay(int arg_cnt, char **args)
 
   // use singleton to get back into OOP context
   int number = atoi(args[1]);
-  CommandInterface::instance()->_setInterBurstDelay(number);
+  CommandInterface::instance()->_setBurstInterval(number);
 }
 
-void CommandInterface::_setInterBurstDelay(int number)
+void CommandInterface::_setBurstInterval(int number)
 {
-  this->datalogger->setInterBurstDelay(number);
+  this->datalogger->setBurstInterval(number);
   notify(F("OK"));
 }
 
@@ -764,9 +746,9 @@ void CommandInterface::setup(){
   // cmdAdd("set-deployment-identifier", setDeploymentIdentifier);
   // cmdAdd("set-logger-name", setLoggerName);
   // cmdAdd("set-wake-interval", setWakeInterval);
-  // cmdAdd("set-burst-number", setBurstNumber);
+  // cmdAdd("set-burst-cycle", setBurstCycle);
   // cmdAdd("set-start-up-delay", setStartUpDelay);
-  // cmdAdd("set-inter-burst-delay", setInterBurstDelay);
+  // cmdAdd("set-burst-interval", setBurstInterval);
 
   // cmdAdd("calibrate", calibrate);
   

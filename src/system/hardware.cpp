@@ -65,7 +65,8 @@ void setupHardwarePins()
   pinMode(BATTERY_INPUT, INPUT_ANALOG); // to monitor the battery pack
 
   pinMode(GPIO_PIN_6, OUTPUT); // GPIO pin available
-  pinMode(24, OUTPUT); // in use for 5v booster
+
+  pinMode(GPIO_PIN_3, OUTPUT); // in use for 5v booster
 
   // pinMode(PA4, INPUT_PULLDOWN); // mosfet for battery measurement - should be OUTPUT ??
 

@@ -153,7 +153,7 @@ bool AdaDHT22::configureDriverFromJSON(cJSON *json)
   }
   else
   {
-    notify("Invalid sensor pin");
+    notify("Invalid sensor_pin");
     return false;
   }
   return true;

@@ -47,7 +47,7 @@ const char * GenericAnalogDriver::getSensorTypeString()
 bool GenericAnalogDriver::configureDriverFromJSON(cJSON *json)
 {
   const cJSON *adcSelectJSON = cJSON_GetObjectItemCaseSensitive(json, "adc_select");
-  const char * errorMessage = reinterpret_cast<const char *>(F("Invalid adc select"));
+  const char * errorMessage = reinterpret_cast<const char *>(F("Invalid adc_select"));
   bool error = false;
   if (adcSelectJSON != NULL && cJSON_IsString(adcSelectJSON))
   {
@@ -86,7 +86,7 @@ bool GenericAnalogDriver::configureDriverFromJSON(cJSON *json)
   }
   else
   {
-    errorMessage = reinterpret_cast<const char *>(F("Invalid sensor port"));
+    errorMessage = reinterpret_cast<const char *>(F("Invalid sensor_port"));
     error = true;
   }
   if(error)

@@ -78,13 +78,13 @@ void Datalogger::readConfiguration(datalogger_settings_type *settings)
   memcpy(settings, buffer, sizeof(datalogger_settings_type));
 
   // apply defaults
-  if (settings->burstNumber == 0 || settings->burstNumber > 100)
+  if (settings->burstCycle == 0 || settings->burstCycle > 100)
   {
-    settings->burstNumber = 1;
+    settings->burstCycle = 1;
   }
-  if (settings->interBurstDelay > 300)
+  if (settings->burstInterval > 300)
   {
-    settings->interBurstDelay = 0;
+    settings->burstInterval = 0;
   }
 
   // TODO: functions to toggle these
@@ -198,22 +198,23 @@ bool Datalogger::processReadingsCycle()
     fileSystemWriteCache->flushCache();
   }
 
-  if (completedBursts < settings.burstNumber)
+  if (completedBursts < settings.burstCycle)
   {
     // debug(F("do another burst"));
-    if (settings.interBurstDelay > 0)
+    if (settings.burstInterval > 0)
     {
-      // notify(F("burstDelay"));
-      int interBurstDelay = settings.interBurstDelay * 60; // convert to seconds
+      // TODO: if this is a significant amount of time should we treat this more similar to stopAndAwaitTrigger where we use an interrupt and more significant sleep?
+
+      // convert burstInterval from min to sec, then subtract amount of time burstcycle has taken in seconds
+      int interBurstDelay = (settings.burstInterval*60)-(millis()-burstCycleStartMillis)/1000; 
+
       // todo: we should sleep any sensors that can be slept without re-warming
       // this could be called 'standby' mode
       // placeSensorsInStandbyMode();
-      
-      // notify(interBurstDelay);
-      uint32 millisElapsed = millis() - burstCycleStartMillis;
-      notify(interBurstDelay - (millisElapsed/1000)); // convert to seconds
-      sleepMCU(interBurstDelay * 1000 - millisElapsed); // convert second to millisecond, subtract time passed
-      
+
+      notify(interBurstDelay);
+      sleepMCU(interBurstDelay*1000); // convert sec to millis
+
       // wakeSensorsFromStandbyMode(); 
     }
     initializeBurst();
@@ -718,13 +719,13 @@ void Datalogger::setConfiguration(cJSON *config)
     notify("wakeInterval");
   }
 
-  const cJSON * burstNumberJson = cJSON_GetObjectItemCaseSensitive(config, "burstNumber");
-  if(burstNumberJson != NULL && cJSON_IsNumber(burstNumberJson) && burstNumberJson->valueint > 0)
+  const cJSON * burstCycleJson = cJSON_GetObjectItemCaseSensitive(config, "burstCycle");
+  if(burstCycleJson != NULL && cJSON_IsNumber(burstCycleJson) && burstCycleJson->valueint > 0)
   {
-    settings.burstNumber = (byte) burstNumberJson->valueint;
+    settings.burstCycle = (byte) burstCycleJson->valueint;
   } else {
     notifyInvalid();
-    notify("burstNumber");
+    notify("burstCycle");
   }
 
   const cJSON * startUpDelayJson = cJSON_GetObjectItemCaseSensitive(config, "startUpDelay");
@@ -736,13 +737,13 @@ void Datalogger::setConfiguration(cJSON *config)
     notify("startUpDelay");
   }
 
-  const cJSON * interBurstDelayJson = cJSON_GetObjectItemCaseSensitive(config, "interBurstDelay");
-  if(interBurstDelayJson != NULL && cJSON_IsNumber(interBurstDelayJson) && interBurstDelayJson->valueint >= 0)
+  const cJSON * burstIntervalJson = cJSON_GetObjectItemCaseSensitive(config, "burstInterval");
+  if(burstIntervalJson != NULL && cJSON_IsNumber(burstIntervalJson) && burstIntervalJson->valueint >= 0)
   {
-    settings.interBurstDelay = (byte) interBurstDelayJson->valueint;
+    settings.burstInterval = (byte) burstIntervalJson->valueint;
   } else {
     notifyInvalid();
-    notify("interBurstDelay");
+    notify("burstInterval");
   }
 
   storeDataloggerConfiguration();
@@ -758,8 +759,8 @@ cJSON * Datalogger::getConfigurationJSON()
   cJSON_AddStringToObject(json, "deploymentIdentifier", settings.deploymentIdentifier);
   cJSON_AddNumberToObject(json, "wakeInterval(min)", settings.wakeInterval);
   cJSON_AddNumberToObject(json, "startUpDelay(min)", settings.startUpDelay);
-  cJSON_AddNumberToObject(json, "burstNumber", settings.burstNumber);
-  cJSON_AddNumberToObject(json, "interBurstDelay(min)", settings.interBurstDelay);
+  cJSON_AddNumberToObject(json, "burstCycle", settings.burstCycle);
+  cJSON_AddNumberToObject(json, "burstInterval(min)", settings.burstInterval);
   
   // boolean settings?
   cJSON_AddBoolToObject(json, "debug_values", settings.debug_values);
@@ -884,9 +885,9 @@ void Datalogger::setWakeInterval(int wakeInterval)
   storeDataloggerConfiguration();
 }
 
-void Datalogger::setBurstNumber(int number)
+void Datalogger::setBurstCycle(int cycles)
 {
-  settings.burstNumber = number;
+  settings.burstCycle = cycles;
   storeDataloggerConfiguration();
 }
 
@@ -896,9 +897,9 @@ void Datalogger::setStartUpDelay(int delay)
   storeDataloggerConfiguration();
 }
 
-void Datalogger::setInterBurstDelay(int delay)
+void Datalogger::setBurstInterval(int burstInterval)
 {
-  settings.interBurstDelay = delay;
+  settings.burstInterval = burstInterval;
   storeDataloggerConfiguration();
 }
 
@@ -1186,8 +1187,11 @@ void Datalogger::stopAndAwaitTrigger()
     storeAllInterrupts(iser1, iser2, iser3);
 
     clearManualWakeInterrupt();
-    setNextAlarmInternalRTC(settings.wakeInterval);
+  }
+  
+  setNextAlarmInternalRTC(settings.wakeInterval);
 
+  if(!settings.continuous_power){
     // power down sensors or delete new objects
     for (unsigned int i = 0; i < sensorCount; i++)
     {

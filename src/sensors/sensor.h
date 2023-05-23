@@ -60,7 +60,7 @@ typedef struct
   unsigned short int sensor_type; // 2 bytes
   unsigned short int warmup;      // 2 bytes - in seconds (65535 max value/60=1092 min)
   byte slot;                      // 1 byte
-  byte burst_size;                // 1 byte
+  byte readingCycle;              // 1 byte
 
 } common_sensor_driver_config;
 

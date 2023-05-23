@@ -30,7 +30,7 @@ cJSON *SensorDriver::getConfigurationJSON() // returns unprotected pointer
   cJSON_AddNumberToObject(json, "slot", commonConfigurations.slot + 1);
   cJSON_AddStringToObject(json, "type", getSensorTypeString());
   cJSON_AddStringToObject(json, "tag", commonConfigurations.tag);
-  cJSON_AddNumberToObject(json, "burst_size", commonConfigurations.burst_size);
+  cJSON_AddNumberToObject(json, "readingCycle", commonConfigurations.readingCycle);
   this->appendDriverSpecificConfigurationJSON(json);
   return json;
 }
@@ -73,7 +73,7 @@ void SensorDriver::appendDriverSpecificConfigurationJSON(cJSON * json)
 }
 
 void SensorDriver::initializeBurst()
-{
+{//todo: change terminology to readingCount vs readingCycles
   burstCount = 0;
   burstSummarySumCounts.clear();
   burstSummarySums.clear();
@@ -87,8 +87,8 @@ void SensorDriver::incrementBurst()
 bool SensorDriver::burstCompleted()
 {
   // notify(burstCount);
-  // notify(commonConfigurations.burst_size);
-  return burstCount >= commonConfigurations.burst_size;
+  // notify(commonConfigurations.readingCycle);
+  return burstCount >= commonConfigurations.readingCycle;
 }
 
 void SensorDriver::addValueToBurstSummaryMean(std::string tag, double value)
@@ -138,9 +138,9 @@ char *SensorDriver::getCSVColumnHeaders()
 
 void SensorDriver::setDefaults()
 {
-  if(commonConfigurations.burst_size <= 0 || commonConfigurations.burst_size > 100)
+  if(commonConfigurations.readingCycle <= 0 || commonConfigurations.readingCycle > 100)
   {
-    commonConfigurations.burst_size = 10;
+    commonConfigurations.readingCycle = 10;
   }
   this->setDriverDefaults();
 }
@@ -191,15 +191,15 @@ bool SensorDriver::configureFromJSON(cJSON * json)
     return false;
   }
 
-  const cJSON * burstSizeJson = cJSON_GetObjectItemCaseSensitive(json, "burst_size");
-  if(burstSizeJson != NULL && cJSON_IsNumber(burstSizeJson) && burstSizeJson->valueint > 0)
+  const cJSON * readingCycleJson = cJSON_GetObjectItemCaseSensitive(json, "readingCycle");
+  if(readingCycleJson != NULL && cJSON_IsNumber(readingCycleJson) && readingCycleJson->valueint > 0)
   {
-    commonConfigurations.burst_size = (byte) burstSizeJson->valueint;
+    commonConfigurations.readingCycle = (byte) readingCycleJson->valueint;
   }
   else
   {
     invalid();
-    notify("burst_size");
+    notify("readingCycle");
     return false;
   }
 

@@ -98,10 +98,9 @@ class CommandInterface
     void _setLoggerName(char * loggerName);
     void _setDeploymentIdentifier(char * deploymentIdentifier);
     void _setWakeInterval(int size);
-    void _setBurstSize(int size);
-    void _setBurstNumber(int number);
+    void _setBurstCycle(int cycles);
     void _setStartUpDelay(int number);
-    void _setInterBurstDelay(int number);
+    void _setBurstInterval(int number);
   
     void _setUserNote(char * note);
     void _setUserValue(int value);

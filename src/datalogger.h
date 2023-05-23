@@ -54,8 +54,8 @@ typedef struct datalogger_settings {
     char unused[6]; // 6 bytes unused
     unsigned short wakeInterval;  // 2 bytes minutes
     unsigned short startUpDelay; // 2 bytes minutes
-    unsigned short burstNumber; // 2 bytes
-    unsigned short interBurstDelay; // 2 bytes minutes
+    unsigned short burstCycle; // 2 bytes
+    unsigned short burstInterval; // 2 bytes minutes
     char mode;       // 1 byte i(interactive), d(debug), l(logging), t(deploy on trigger)
     byte externalADCEnabled : 1;
     byte debug_values : 1;
@@ -105,10 +105,10 @@ public:
     void setDeploymentTimestamp(int timestamp);
 
     void setWakeInterval(int interval);
-    void setBurstSize(int size);
-    void setBurstNumber(int number);
+    // void setBurstSize(int size);
+    void setBurstCycle(int cycles);
     void setStartUpDelay(int delay);
-    void setInterBurstDelay(int delay);
+    void setBurstInterval(int burstInterval);
 
     // void setRTCtimestamp(uint32 setTime);
 
