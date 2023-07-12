@@ -422,5 +422,5 @@ void GenericAnalogDriver::addCalibrationParametersToJSON(cJSON *json)
 
 uint32 GenericAnalogDriver::millisecondsUntilNextRequestedReading()
 {
-  return 100; // analog can be read continuously, but would not be meaningful
+  return 100; // analog can be read continuously, this speed should be for oversampling or for detecting minute changes?
 }
